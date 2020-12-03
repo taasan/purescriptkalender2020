@@ -4,7 +4,6 @@ import Data.Maybe (Maybe)
 import Advent.Door1 as D1
 import Advent.Door2 as D2
 import Advent.Door3 as D3
-import Advent.Lib (lines)
 
 data Door
   = Door1 String
