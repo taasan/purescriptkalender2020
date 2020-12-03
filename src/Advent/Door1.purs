@@ -5,7 +5,7 @@ import Advent.Lib (choose, lines)
 import Data.Foldable (find, product, sum)
 import Data.Int (fromString)
 import Data.List (mapMaybe)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (Maybe)
 import Data.Traversable (sequence)
 
 {- https://adventofcode.com/2020/day/1
@@ -45,8 +45,8 @@ Using the above example again, the three entries that sum to 2020 are
 In your expense report, what is the product of the three entries that
 sum to 2020?
 -}
-open :: String -> String
-open input = show $ fromMaybe [] (sequence $ calculate <$> [ 2, 3 ])
+open :: String -> Maybe String
+open input = (sequence $ calculate <$> [ 2, 3 ]) >>= pure <<< show
   where
   calculate n = do
     ys <- find (\ys -> sum ys == 2020) $ choose n xs

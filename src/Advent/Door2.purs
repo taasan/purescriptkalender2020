@@ -84,8 +84,8 @@ parsePassword str = do
 
   re = unsafeRegex """[-: ]""" noFlags
 
-open :: String -> String
-open input = show $ countValid <$> [ isValidPart1, isValidPart2 ]
+open :: String -> Maybe String
+open input = pure <<< show $ countValid <$> [ isValidPart1, isValidPart2 ]
   where
   countValid :: (PasswordEntry -> Boolean) -> Int
   countValid p = (L.length <<< L.filter p) passwords
