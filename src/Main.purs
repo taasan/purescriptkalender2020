@@ -18,7 +18,7 @@ openDoors :: Effect (Array String)
 openDoors = traverseWithIndex (\i -> openDoor (i + 1)) doors
 
 doors :: Array (String -> Door)
-doors = [ Door1 ]
+doors = [ Door1, Door2 ]
 
 openDoor :: Int -> (String -> Door) -> Effect String
 openDoor day door = do
