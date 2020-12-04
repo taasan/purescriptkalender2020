@@ -46,9 +46,10 @@ What do you get if you multiply together the number of trees
 encountered on each of the listed slopes?
 -}
 import Prelude
-import Advent.Lib (lines)
-import Data.Array (catMaybes, filter, fromFoldable, index, length, (..))
-import Data.Foldable (product)
+import Advent.Lib (index, lines)
+import Data.Array (fromFoldable, (..))
+import Data.Filterable (compact, filter)
+import Data.Foldable (length, product)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Eq (genericEq)
 import Data.Int (toNumber)
@@ -99,7 +100,7 @@ open str = pure $ show $ [ toNumber part1, part2 ]
   path slope = getCoordinate slope <$> 0 .. length grid
 
   collect :: Slope -> Array Content
-  collect slope = catMaybes $ getContent <$> path slope
+  collect slope = compact $ getContent <$> path slope
 
   getContent :: Coordinate -> Maybe Content
   getContent { row, col } = do

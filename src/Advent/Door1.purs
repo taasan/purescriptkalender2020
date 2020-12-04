@@ -1,12 +1,11 @@
 module Advent.Door1 (open) where
 
 import Prelude
-import Advent.Lib (choose, lines)
+import Advent.Lib ((<$$>), choose, lines)
 import Data.Foldable (find, product, sum)
 import Data.Int (fromString)
-import Data.List (mapMaybe)
+import Data.List (fromFoldable)
 import Data.Maybe (Maybe)
-import Data.Traversable (sequence)
 
 {- https://adventofcode.com/2020/day/1
 
@@ -46,10 +45,10 @@ In your expense report, what is the product of the three entries that
 sum to 2020?
 -}
 open :: String -> Maybe String
-open input = (sequence $ calculate <$> [ 2, 3 ]) >>= pure <<< show
+open input = pure $ show $ calculate <$$> [ 2, 3 ]
   where
   calculate n = do
     ys <- find ((_ == 2020) <<< sum) $ choose n xs
     pure $ product ys
 
-  xs = mapMaybe fromString $ lines input
+  xs = fromFoldable $ fromString <$$> lines input

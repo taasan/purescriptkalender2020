@@ -1,10 +1,11 @@
 module Advent.Door2 (open) where
 
 import Prelude
-import Advent.Lib (lines)
-import Data.Array ((!!), filter, head, catMaybes, sort, length)
+import Advent.Lib ((!!), (<$$>), head, lines)
+import Data.Array (sort)
+import Data.Filterable (compact, filter)
+import Data.Foldable (length)
 import Data.Int (fromString)
-import Data.List as L
 import Data.Maybe (Maybe)
 import Data.String.CodeUnits (charAt, toCharArray)
 import Data.String.Regex (split)
@@ -88,10 +89,10 @@ open :: String -> Maybe String
 open input = pure <<< show $ countValid <$> [ isValidPart1, isValidPart2 ]
   where
   countValid :: (PasswordEntry -> Boolean) -> Int
-  countValid p = (L.length <<< L.filter p) passwords
+  countValid p = (length <<< filter p) passwords
 
-  passwords :: L.List PasswordEntry
-  passwords = L.mapMaybe parsePassword $ lines input
+  passwords :: Array PasswordEntry
+  passwords = parsePassword <$$> lines input
 
   isValidPart1 :: PasswordEntry -> Boolean
   isValidPart1 x = len >= x.num1 && len <= x.num2
@@ -101,7 +102,7 @@ open input = pure <<< show $ countValid <$> [ isValidPart1, isValidPart2 ]
   isValidPart2 :: PasswordEntry -> Boolean
   isValidPart2 x = result $ (sort <<< map ((==) x.char)) chars
     where
-    chars = catMaybes $ [ charAt (x.num1 - 1) password, charAt (x.num2 - 1) password ]
+    chars = compact $ [ charAt (x.num1 - 1) password, charAt (x.num2 - 1) password ]
 
     result [ false, true ] = true
 
