@@ -49,7 +49,7 @@ open :: String -> Maybe String
 open input = (sequence $ calculate <$> [ 2, 3 ]) >>= pure <<< show
   where
   calculate n = do
-    ys <- find (\ys -> sum ys == 2020) $ choose n xs
+    ys <- find ((_ == 2020) <<< sum) $ choose n xs
     pure $ product ys
 
   xs = mapMaybe fromString $ lines input
