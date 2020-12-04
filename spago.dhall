@@ -4,18 +4,19 @@ You can edit this file as you like.
 -}
 { name = "my-project"
 , dependencies =
-    [ "console"
-    , "effect"
-    , "psci-support"
-    , "lists"
-    , "integers"
-    , "strings"
-    , "node-fs"
-    , "foldable-traversable"
-    , "generics-rep"
-    , "filterable"
-    , "ansi"
-    ]
+  [ "ansi"
+  , "console"
+  , "effect"
+  , "filterable"
+  , "foldable-traversable"
+  , "generics-rep"
+  , "integers"
+  , "lists"
+  , "node-fs"
+  , "parsing"
+  , "psci-support"
+  , "strings"
+  ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
