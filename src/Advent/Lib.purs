@@ -18,9 +18,12 @@ Stolen from https://hackage.haskell.org/package/combinat-0.2.9.0/docs/src/Math.C
 choose :: forall a. Int -> List a -> List (List a)
 choose 0 _ = Nil : Nil
 
-choose k (x : xs) = map ((:) x) (choose (k - 1) xs) <> choose k xs
+choose _ Nil = Nil
 
-choose _ _ = Nil
+choose k _
+  | k < 1 = Nil
+
+choose k (x : xs) = map ((:) x) (choose (k - 1) xs) <> choose k xs
 
 head :: forall a f. Foldable f => f a -> Maybe a
 head = indexl 0
