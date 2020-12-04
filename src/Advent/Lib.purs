@@ -5,10 +5,13 @@ import Data.Filterable (filterMap)
 import Data.Foldable (class Foldable, indexl)
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe)
-import Data.String (split, Pattern(..))
+import Data.String (Pattern(..))
+import Data.String.Regex (split)
+import Data.String.Regex.Flags (noFlags)
+import Data.String.Regex.Unsafe (unsafeRegex)
 
 lines :: String -> Array String
-lines = split (Pattern "\n")
+lines = unsafeSplit (Pattern "\n")
 
 {-
 Stolen from https://hackage.haskell.org/package/combinat-0.2.9.0/docs/src/Math.Combinat.Sets.html#choose
@@ -35,3 +38,8 @@ index = flip indexl
 infixl 8 index as !!
 
 infixl 4 filterMap as <$$>
+
+unsafeSplit :: Pattern -> String -> Array String
+unsafeSplit (Pattern pattern) = split re
+  where
+  re = unsafeRegex pattern noFlags

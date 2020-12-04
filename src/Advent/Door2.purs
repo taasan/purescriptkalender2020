@@ -1,16 +1,14 @@
 module Advent.Door2 (open) where
 
 import Prelude
-import Advent.Lib ((!!), (<$$>), head, lines)
+import Advent.Lib ((!!), (<$$>), head, lines, unsafeSplit)
 import Data.Array (sort)
 import Data.Filterable (compact, filter)
 import Data.Foldable (length)
 import Data.Int (fromString)
 import Data.Maybe (Maybe)
+import Data.String (Pattern(..))
 import Data.String.CodeUnits (charAt, toCharArray)
-import Data.String.Regex (split)
-import Data.String.Regex.Flags (noFlags)
-import Data.String.Regex.Unsafe (unsafeRegex)
 
 {- https://adventofcode.com/2020/day/2
 
@@ -81,9 +79,7 @@ parsePassword str = do
   p <- xs !! 3
   pure { num1: n1, num2: n2, char: c, password: p }
   where
-  xs = (filter ((/=) "") <<< split re) str
-
-  re = unsafeRegex """[-: ]""" noFlags
+  xs = (filter ((/=) "") <<< unsafeSplit (Pattern """[-: ]""")) str
 
 open :: String -> Maybe String
 open input = pure <<< show $ countValid <$> [ isValidPart1, isValidPart2 ]
