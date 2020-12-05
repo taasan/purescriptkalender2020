@@ -2,10 +2,10 @@ module Advent.Door1 (open) where
 
 import Prelude
 import Advent.Lib ((<$$>), choose, lines)
+import Data.Either (Either)
 import Data.Foldable (find, product, sum)
 import Data.Int (fromString)
 import Data.List (fromFoldable)
-import Data.Maybe (Maybe)
 
 {- https://adventofcode.com/2020/day/1
 
@@ -44,7 +44,7 @@ Using the above example again, the three entries that sum to 2020 are
 In your expense report, what is the product of the three entries that
 sum to 2020?
 -}
-open :: String -> Maybe String
+open :: String -> Either String String
 open input = pure $ show $ calculate <$$> [ 2, 3 ]
   where
   calculate n = do

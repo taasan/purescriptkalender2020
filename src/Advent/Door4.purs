@@ -44,13 +44,14 @@ fields and valid values. Continue to treat cid as optional. In your
 batch file, how many passports are valid?
 -}
 import Prelude hiding (between, when)
-import Advent.Lib ((<$$>))
+import Advent.Lib (fromCharList, (<$$>))
 import Control.Alt ((<|>))
-import Data.Array as A
-import Data.Either (Either, hush)
+import Data.Array as Array
+import Data.Either (Either(..), hush)
+import Data.Filterable (partitionMap)
 import Data.Foldable (length)
 import Data.Int (fromString)
-import Data.List ((:), many)
+import Data.List (List, fromFoldable, many, (:))
 import Data.Map (Map)
 import Data.Map as M
 import Data.Maybe (Maybe(..))
@@ -58,25 +59,28 @@ import Data.String (Pattern(..), split, trim)
 import Data.String.CodeUnits (fromCharArray)
 import Data.Tuple (Tuple(..))
 import Text.Parsing.Parser.Combinators (optional, sepBy)
-import Text.Parsing.Parser.String (char, eof, noneOf, oneOf, string)
+import Text.Parsing.Parser.String (char, eof, oneOf, noneOf, string)
 import Text.Parsing.Parser as P
 import Text.Parsing.Parser (ParseError, fail, runParser)
 
-open :: String -> Maybe String
+open :: String -> Either String String
 open input =
-  let
-    -- Litt klumsete her.  Fant ikke ut hvordan jeg skulle separere
-    -- passene med blank linje samtidig som \n også er feltseparator.
-    xs :: Array (Either ParseError PassportMap)
-    xs = ((flip runParser) fields <<< trim) <$> (split (Pattern "\n\n") input)
-
-    passports :: Array Passport
-    passports = (((<$$>) fromMap) <<< hush) <$$> xs
-
-    answer :: Array Int
-    answer = [ length passports, length $ toTypedPassport <$$> passports ]
-  in
+  if length errors /= 0 then
+    Left $ show errors
+  else
     pure $ show answer
+  where
+  -- Litt klumsete her.  Fant ikke ut hvordan jeg skulle separere
+  -- passene med blank linje samtidig som \n også er feltseparator.
+  xs :: List (Either ParseError PassportMap)
+  xs = fromFoldable $ ((flip runParser) fields <<< trim) <$> (split (Pattern "\n\n") input)
+
+  { left: errors, right: passportMaps } = partitionMap identity $ xs
+
+  passports = fromMap <$$> passportMaps
+
+  answer :: Array Int
+  answer = [ length passports, length $ toTypedPassport <$$> passports ]
 
 data Key
   = Byr
@@ -211,7 +215,7 @@ field = do
   key' <- key
   void $ char ':'
   value <- many $ noneOf [ ' ', '\n' ]
-  pure $ Tuple key' $ (fromCharArray <<< A.fromFoldable) value
+  pure $ Tuple key' $ fromCharList value
 
 fields :: Parser PassportMap
 fields = do
@@ -222,7 +226,7 @@ unsigned :: Parser Int
 unsigned = do
   n <- oneOf digitsNotZero
   ns <- many (oneOf digits)
-  case fromString $ (fromCharArray <<< A.fromFoldable) $ n : ns of
+  case fromString $ (fromCharArray <<< Array.fromFoldable) $ n : ns of
     Just x -> pure x
     _ -> fail "Invalid number"
 
@@ -232,7 +236,7 @@ hairColour = do
   ns <- many $ oneOf $ digits <> [ 'a', 'b', 'c', 'd', 'e', 'f' ]
   void eof
   let
-    x = (fromCharArray <<< A.fromFoldable) (n : ns)
+    x = (fromCharArray <<< Array.fromFoldable) (n : ns)
   if length ns /= 6 then fail x else pure x
 
 passportId :: Parser PassportId
@@ -240,7 +244,7 @@ passportId = do
   ns <- many $ oneOf digits
   void eof
   let
-    x = (fromCharArray <<< A.fromFoldable) ns
+    x = (fromCharArray <<< Array.fromFoldable) ns
   if length ns /= 9 then fail x else pure x
 
 height :: Parser Height
@@ -263,4 +267,4 @@ digitsNotZero :: Array Char
 digitsNotZero = [ '1', '2', '3', '4', '5', '6', '7', '8', '9' ]
 
 digits :: Array Char
-digits = A.snoc digitsNotZero '0'
+digits = Array.snoc digitsNotZero '0'

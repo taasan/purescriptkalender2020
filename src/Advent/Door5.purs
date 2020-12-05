@@ -39,30 +39,42 @@ What is the ID of your seat?
 -}
 import Prelude
 import Control.Alt ((<|>))
-import Data.Either (hush)
+import Data.Either (Either(..))
 import Data.Foldable (foldl, maximum, minimum)
 import Data.List (List(..), difference, drop, length, many, take, (..), (:))
 import Data.Maybe (Maybe(..))
 import Text.Parsing.Parser.Combinators (sepEndBy)
 import Text.Parsing.Parser.String (char)
 import Text.Parsing.Parser as P
-import Text.Parsing.Parser (fail, runParser)
+import Text.Parsing.Parser (ParseError(..), fail, parseErrorMessage, runParser)
+import Text.Parsing.Parser.Pos (initialPos)
 
-open :: String -> Maybe String
+open :: String -> Either String String
 open input = do
-  xs <- hush $ runParser input positions
-  let
-    seats = seat <$> xs
-  maxSeat <- maximum seats
-  minSeat <- minimum seats
-  let
-    availableSeats = difference (minSeat .. maxSeat) seats
-  mySeat <- case availableSeats of
-    (x : Nil) -> pure x
-    _ -> Nothing
-  (pure <<< show) [ maxSeat, mySeat ]
+  case doOpen of
+    Right x -> pure x
+    Left err -> Left $ parseErrorMessage err
   where
-  seat { row, col } = row * 8 + col
+  doOpen :: Either ParseError String
+  doOpen = do
+    xs <- runParser input positions
+    let
+      seats = seat <$> xs
+    maxSeat <- fromMaybe "maxSeat" $ maximum seats
+    minSeat <- fromMaybe "minSeat" $ minimum seats
+    let
+      availableSeats = difference (minSeat .. maxSeat) seats
+    mySeat <- case availableSeats of
+      (x : Nil) -> pure x
+      _ -> fromMaybe "Expected singleton list for mySeat" $ Nothing
+    (pure <<< show) [ maxSeat, mySeat ]
+    where
+    seat { row, col } = row * 8 + col
+
+  fromMaybe :: forall a. String -> Maybe a -> Either P.ParseError a
+  fromMaybe reason Nothing = Left $ ParseError reason $ initialPos
+
+  fromMaybe _ (Just x) = pure x
 
 data Partition
   = First

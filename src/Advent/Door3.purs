@@ -48,6 +48,7 @@ encountered on each of the listed slopes?
 import Prelude
 import Advent.Lib (index, lines)
 import Data.Array (fromFoldable, (..))
+import Data.Either (Either)
 import Data.Filterable (compact, filter)
 import Data.Foldable (length, product)
 import Data.Int (toNumber)
@@ -71,7 +72,7 @@ mkSlope deltaCol deltaRow = { deltaCol, deltaRow }
 
 infixl 8 mkSlope as !
 
-open :: String -> Maybe String
+open :: String -> Either String String
 open str = pure $ show $ [ toNumber part1, part2 ]
   where
   countTrees slope = (length <<< filter ((==) Tree)) $ collect slope

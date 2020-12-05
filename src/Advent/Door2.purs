@@ -3,6 +3,7 @@ module Advent.Door2 (open) where
 import Prelude
 import Advent.Lib ((!!), (<$$>), head, lines, unsafeSplit)
 import Data.Array (sort)
+import Data.Either (Either)
 import Data.Filterable (compact, filter)
 import Data.Foldable (length)
 import Data.Int (fromString)
@@ -81,7 +82,7 @@ parsePassword str = do
   where
   xs = (filter ((/=) "") <<< unsafeSplit (Pattern """[-: ]""")) str
 
-open :: String -> Maybe String
+open :: String -> Either String String
 open input = pure <<< show $ countValid <$> [ isValidPart1, isValidPart2 ]
   where
   countValid :: (PasswordEntry -> Boolean) -> Int

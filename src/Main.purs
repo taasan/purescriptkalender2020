@@ -4,8 +4,8 @@ import Prelude
 import Advent (Door(..), open)
 import Ansi.Codes (Color(..))
 import Ansi.Output (bold, foreground, underline, withGraphics)
+import Data.Either (Either(..), isLeft)
 import Data.Foldable (elem)
-import Data.Maybe (Maybe(..))
 import Data.Traversable (traverse_)
 import Data.TraversableWithIndex (traverseWithIndex)
 import Data.Tuple (Tuple(..), snd)
@@ -43,23 +43,23 @@ main = do
 openDoors :: Effect (Array (Tuple String Result))
 openDoors = traverseWithIndex (\i -> openDoor (i + 1)) doors
 
-doors :: Array (Tuple (String -> Door) (Maybe String))
+doors :: Array (Tuple (String -> Door) (Either String String))
 doors =
-  [ Tuple Door1 (Just "[1020036,286977330]")
-  , Tuple Door2 (Just "[645,737]")
-  , Tuple Door3 (Just "[169.0,7560370818.0]")
-  , Tuple Door4 (Just "[213,147]")
-  , Tuple Door5 (Just "[974,646]")
+  [ Tuple Door1 (Right "[1020036,286977330]")
+  , Tuple Door2 (Right "[645,737]")
+  , Tuple Door3 (Right "[169.0,7560370818.0]")
+  , Tuple Door4 (Right "[213,147]")
+  , Tuple Door5 (Right "[974,646]")
   ]
 
-openDoor :: Int -> Tuple (String -> Door) (Maybe String) -> Effect (Tuple String Result)
+openDoor :: Int -> Tuple (String -> Door) (Either String String) -> Effect (Tuple String Result)
 openDoor day (Tuple door correct) = do
   input <- getInput day
   let
     answer = open (door input)
 
     ok =
-      if correct == Nothing then
+      if isLeft correct then
         Unknown
       else if answer == correct then
         Correct
@@ -67,7 +67,7 @@ openDoor day (Tuple door correct) = do
         Wrong
   pure $ Tuple (show day <> "\t" <> output answer) ok
   where
-  output (Just x) = x
+  output (Right x) = x
 
   output x = show x
 

@@ -1,12 +1,14 @@
 module Advent.Lib where
 
 import Prelude
+import Data.Array as Array
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Filterable (filterMap)
 import Data.Foldable (class Foldable, indexl)
 import Data.List (List(..), (:))
 import Data.Maybe (Maybe)
 import Data.String (Pattern(..))
+import Data.String.CodeUnits (fromCharArray)
 import Data.String.Regex (match, split)
 import Data.String.Regex.Flags (noFlags)
 import Data.String.Regex.Unsafe (unsafeRegex)
@@ -49,3 +51,6 @@ unsafeMatch :: Pattern -> String -> Maybe (NonEmptyArray (Maybe String))
 unsafeMatch (Pattern pattern) = match re
   where
   re = unsafeRegex pattern noFlags
+
+fromCharList :: List Char -> String
+fromCharList = fromCharArray <<< Array.fromFoldable
