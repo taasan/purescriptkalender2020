@@ -65,21 +65,21 @@ type Position
   = { row :: Int, col :: Int }
 
 findPosition :: Array Char -> Maybe Position
-findPosition xs
-  | length xs /= 10 = Nothing
-
 findPosition xs = do
-  row <- getPos (parseRow <$$> xs) (0 .. 127)
-  col <- getPos (parseCol <$$> xs) (0 .. 7)
+  row <- verifyLength 7 (parseRow <$$> take 7 xs) >>= getPos (0 .. 127)
+  col <- verifyLength 3 (parseCol <$$> drop 7 xs) >>= getPos (0 .. 7)
   pure { col, row }
   where
-  getPos :: Array Partition -> Array Int -> Maybe Int
-  getPos ps ys = f $ foldl partition ys ps
+  getPos :: Array Int -> Array Partition -> Maybe Int
+  getPos ys ps = f $ foldl partition ys ps
     where
     -- We should have a singleton here
     f [ x ] = pure x
 
     f _ = Nothing
+
+  verifyLength :: forall a. Int -> Array a -> Maybe (Array a)
+  verifyLength n ys = if length ys /= n then Nothing else pure ys
 
   partition :: Array Int -> Partition -> Array Int
   partition seats p = (f p) n seats
