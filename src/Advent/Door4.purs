@@ -49,9 +49,6 @@ import Control.Alt ((<|>))
 import Data.Array as A
 import Data.Either (Either, hush)
 import Data.Foldable (length)
-import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Eq (genericEq)
-import Data.Generic.Rep.Ord (genericCompare)
 import Data.Int (fromString)
 import Data.List ((:), many)
 import Data.Map (Map)
@@ -91,13 +88,9 @@ data Key
   | Pid
   | Cid
 
-derive instance genericKey :: Generic Key _
+derive instance eqKey :: Eq Key
 
-instance eqKey :: Eq Key where
-  eq = genericEq
-
-instance ordKey :: Ord Key where
-  compare = genericCompare
+derive instance ordKey :: Ord Key
 
 type Field
   = Tuple Key String

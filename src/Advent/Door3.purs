@@ -50,8 +50,6 @@ import Advent.Lib (index, lines)
 import Data.Array (fromFoldable, (..))
 import Data.Filterable (compact, filter)
 import Data.Foldable (length, product)
-import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Eq (genericEq)
 import Data.Int (toNumber)
 import Data.Maybe (Maybe)
 import Data.String.CodeUnits (toCharArray)
@@ -60,10 +58,7 @@ data Content
   = Tree
   | OpenSquare
 
-derive instance genericContent :: Generic Content _
-
-instance eqContent :: Eq Content where
-  eq = genericEq
+derive instance eqContent :: Eq Content
 
 type Slope
   = { deltaCol :: Int, deltaRow :: Int }
