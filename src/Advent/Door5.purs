@@ -38,14 +38,23 @@ Your seat wasn't at the very front or back, though; the seats with IDs
 What is the ID of your seat?
 -}
 import Prelude
-import Advent.Lib (lines, (<$$>))
-import Data.Array (difference, drop, head, length, take, (..))
+import Control.Alt ((<|>))
+import Data.Array (difference, drop, fromFoldable, head, length, take, (..))
+import Data.Either (hush)
 import Data.Foldable (foldl, maximum, minimum)
-import Data.Maybe (Maybe(..))
-import Data.String.CodeUnits (toCharArray)
+import Data.List (List, many)
+import Data.List as L
+import Data.Maybe (Maybe)
+import Text.Parsing.Parser.Combinators (sepEndBy)
+import Text.Parsing.Parser.String (char)
+import Text.Parsing.Parser as P
+import Text.Parsing.Parser (fail, runParser)
 
 open :: String -> Maybe String
 open input = do
+  xs <- hush $ runParser input positions
+  let
+    seats = fromFoldable $ seat <$> xs
   maxSeat <- maximum seats
   minSeat <- minimum seats
   let
@@ -53,8 +62,6 @@ open input = do
   mySeat <- head availableSeats
   (pure <<< show) [ maxSeat, mySeat ]
   where
-  seats = ((map seat) <<< findPosition <<< toCharArray) <$$> lines input
-
   seat { row, col } = row * 8 + col
 
 data Partition
@@ -64,22 +71,34 @@ data Partition
 type Position
   = { row :: Int, col :: Int }
 
-findPosition :: Array Char -> Maybe Position
-findPosition xs = do
-  row <- verifyLength 7 (parseRow <$$> take 7 xs) >>= getPos (0 .. 127)
-  col <- verifyLength 3 (parseCol <$$> drop 7 xs) >>= getPos (0 .. 7)
+type Parser
+  = P.Parser String
+
+rowPartition :: Parser Partition
+rowPartition =
+  (char 'F' >>= \_ -> pure First)
+    <|> (char 'B' >>= \_ -> pure Last)
+
+colPartition :: Parser Partition
+colPartition =
+  (char 'L' >>= \_ -> pure First)
+    <|> (char 'R' >>= \_ -> pure Last)
+
+position :: Parser Position
+position = do
+  row <- many rowPartition >>= verifyLength 7 >>= getPos (0 .. 127)
+  col <- many colPartition >>= verifyLength 3 >>= getPos (0 .. 7)
   pure { col, row }
   where
-  getPos :: Array Int -> Array Partition -> Maybe Int
+  verifyLength n ys = if L.length ys /= n then fail "Invalid length" else pure ys
+
+  getPos :: Array Int -> List Partition -> Parser Int
   getPos ys ps = f $ foldl partition ys ps
     where
     -- We should have a singleton here
     f [ x ] = pure x
 
-    f _ = Nothing
-
-  verifyLength :: forall a. Int -> Array a -> Maybe (Array a)
-  verifyLength n ys = if length ys /= n then Nothing else pure ys
+    f _ = fail "Expected a singleton list"
 
   partition :: Array Int -> Partition -> Array Int
   partition seats p = (f p) n seats
@@ -90,14 +109,5 @@ findPosition xs = do
 
     f _ = drop
 
-  parseRow 'F' = pure First
-
-  parseRow 'B' = pure Last
-
-  parseRow _ = Nothing
-
-  parseCol 'L' = pure First
-
-  parseCol 'R' = pure Last
-
-  parseCol _ = Nothing
+positions :: Parser (List Position)
+positions = position `sepEndBy` many (char '\n')
