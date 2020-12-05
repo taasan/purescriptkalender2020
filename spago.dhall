@@ -13,6 +13,7 @@ You can edit this file as you like.
   , "integers"
   , "lists"
   , "node-fs"
+  , "node-process"
   , "parsing"
   , "psci-support"
   , "strings"
