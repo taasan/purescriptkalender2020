@@ -10,10 +10,11 @@
         "test": "test"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "spago test",
         "bundle": "spago bundle-app -t dist/index.js",
         "start": "spago run",
-        "format": "git ls-files '*.purs' | xargs -L 1 purty --write"
+        "format": "git ls-files '*.purs' | xargs -L 1 purty --write",
+        "lint": "git ls-files '*.purs' | xargs -L 1 purty validate"
     },
     "author": "",
     "license": "ISC",
