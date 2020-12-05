@@ -39,12 +39,10 @@ What is the ID of your seat?
 -}
 import Prelude
 import Control.Alt ((<|>))
-import Data.Array (difference, drop, fromFoldable, head, length, take, (..))
 import Data.Either (hush)
 import Data.Foldable (foldl, maximum, minimum)
-import Data.List (List, many)
-import Data.List as L
-import Data.Maybe (Maybe)
+import Data.List (List(..), difference, drop, length, many, take, (..), (:))
+import Data.Maybe (Maybe(..))
 import Text.Parsing.Parser.Combinators (sepEndBy)
 import Text.Parsing.Parser.String (char)
 import Text.Parsing.Parser as P
@@ -54,12 +52,14 @@ open :: String -> Maybe String
 open input = do
   xs <- hush $ runParser input positions
   let
-    seats = fromFoldable $ seat <$> xs
+    seats = seat <$> xs
   maxSeat <- maximum seats
   minSeat <- minimum seats
   let
     availableSeats = difference (minSeat .. maxSeat) seats
-  mySeat <- head availableSeats
+  mySeat <- case availableSeats of
+    (x : Nil) -> pure x
+    _ -> Nothing
   (pure <<< show) [ maxSeat, mySeat ]
   where
   seat { row, col } = row * 8 + col
@@ -90,17 +90,17 @@ position = do
   col <- many colPartition >>= verifyLength 3 >>= getPos (0 .. 7)
   pure { col, row }
   where
-  verifyLength n ys = if L.length ys /= n then fail "Invalid length" else pure ys
+  verifyLength n ys = if length ys /= n then fail "Invalid length" else pure ys
 
-  getPos :: Array Int -> List Partition -> Parser Int
+  getPos :: List Int -> List Partition -> Parser Int
   getPos ys ps = f $ foldl partition ys ps
     where
     -- We should have a singleton here
-    f [ x ] = pure x
+    f (x : Nil) = pure x
 
     f _ = fail "Expected a singleton list"
 
-  partition :: Array Int -> Partition -> Array Int
+  partition :: List Int -> Partition -> List Int
   partition seats p = (f p) n seats
     where
     n = (length seats) / 2
