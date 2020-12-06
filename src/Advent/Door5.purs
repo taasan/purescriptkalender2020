@@ -38,7 +38,7 @@ Your seat wasn't at the very front or back, though; the seats with IDs
 What is the ID of your seat?
 -}
 import Prelude
-import Advent.Lib ((>>+))
+import Advent.Lib ((*>+))
 import Control.Alt ((<|>))
 import Data.Either (Either(..))
 import Data.Foldable (foldl, maximum, minimum)
@@ -90,13 +90,13 @@ type Parser
 
 rowPartition :: Parser Partition
 rowPartition =
-  (char 'F' >>+ First)
-    <|> (char 'B' >>+ Last)
+  (char 'F' *>+ First)
+    <|> (char 'B' *>+ Last)
 
 colPartition :: Parser Partition
 colPartition =
-  (char 'L' >>+ First)
-    <|> (char 'R' >>+ Last)
+  (char 'L' *>+ First)
+    <|> (char 'R' *>+ Last)
 
 position :: Parser Position
 position = do

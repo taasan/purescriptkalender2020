@@ -44,7 +44,7 @@ fields and valid values. Continue to treat cid as optional. In your
 batch file, how many passports are valid?
 -}
 import Prelude hiding (between, when)
-import Advent.Lib (fromCharList, (<$$>), (>>+))
+import Advent.Lib (fromCharList, (<$$>), (*>+))
 import Control.Alt ((<|>))
 import Data.Array as Array
 import Data.Either (Either(..), hush)
@@ -201,14 +201,14 @@ type Parser
 
 key :: Parser Key
 key =
-  (string "byr" >>+ Byr)
-    <|> (string "iyr" >>+ Iyr)
-    <|> (string "eyr" >>+ Eyr)
-    <|> (string "hgt" >>+ Hgt)
-    <|> (string "hcl" >>+ Hcl)
-    <|> (string "ecl" >>+ Ecl)
-    <|> (string "pid" >>+ Pid)
-    <|> (optional (string "cid") >>+ Cid)
+  (string "byr" *>+ Byr)
+    <|> (string "iyr" *>+ Iyr)
+    <|> (string "eyr" *>+ Eyr)
+    <|> (string "hgt" *>+ Hgt)
+    <|> (string "hcl" *>+ Hcl)
+    <|> (string "ecl" *>+ Ecl)
+    <|> (string "pid" *>+ Pid)
+    <|> (optional (string "cid") *>+ Cid)
 
 field :: Parser Field
 field = do
@@ -257,7 +257,7 @@ height = do
   if validHeight height' then pure height' else fail "Invalid height"
   where
   parseUnit :: Parser (Int -> Height)
-  parseUnit = ((string "in" >>+ In) <|> (string "cm" >>+ Cm))
+  parseUnit = ((string "in" *>+ In) <|> (string "cm" *>+ Cm))
 
   validHeight (Cm x) = x >= 150 && x <= 193
 
