@@ -4,7 +4,7 @@ import Prelude
 import Data.Array as Array
 import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Filterable (filterMap)
-import Data.Foldable (class Foldable, indexl)
+import Data.Foldable (class Foldable, foldl, indexl)
 import Data.List (List(..), (:))
 import Data.List as List
 import Data.Maybe (Maybe)
@@ -63,6 +63,15 @@ applySecondWithPure :: forall b a m. Apply m => Applicative m => m b -> a -> m a
 applySecondWithPure m x = m *> pure x
 
 infixl 1 applySecondWithPure as *>+
+
+class
+  (Foldable f, Foldable g) <= Intersectable f g where
+  intersections ::
+    forall a.
+    Eq a => f (g a) -> g a
+
+instance intersectableArrayArray :: Intersectable Array Array where
+  intersections xs = foldl Array.intersect (Array.concat xs) xs
 
 -- | Konverter mellom Foldables
 class

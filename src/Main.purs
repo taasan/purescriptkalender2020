@@ -50,6 +50,7 @@ doors =
   , Tuple Door3 (Right "[169.0,7560370818.0]")
   , Tuple Door4 (Right "[213,147]")
   , Tuple Door5 (Right "[974,646]")
+  , Tuple Door6 (Right "[6775,3356]")
   ]
 
 openDoor :: Int -> Tuple (String -> Door) (Either String String) -> Effect (Tuple String Result)
