@@ -44,14 +44,14 @@ fields and valid values. Continue to treat cid as optional. In your
 batch file, how many passports are valid?
 -}
 import Prelude hiding (between, when)
-import Advent.Lib (fromCharList, (<$$>), (*>+))
+import Advent.Lib (fromCharList, fromFoldable, (<$$>), (*>+))
 import Control.Alt ((<|>))
 import Data.Array as Array
 import Data.Either (Either(..), hush)
 import Data.Filterable (partitionMap)
 import Data.Foldable (length)
 import Data.Int (fromString)
-import Data.List (List, fromFoldable, many, (:))
+import Data.List (List, many, (:))
 import Data.Map (Map)
 import Data.Map as M
 import Data.Maybe (Maybe(..))
@@ -226,7 +226,7 @@ unsigned :: Parser Int
 unsigned = do
   n <- oneOf digitsNotZero
   ns <- many (oneOf digits)
-  case fromString $ (fromCharArray <<< Array.fromFoldable) $ n : ns of
+  case fromString $ (fromCharArray <<< fromFoldable) $ n : ns of
     Just x -> pure x
     _ -> fail "Invalid number"
 
@@ -236,7 +236,7 @@ hairColour = do
   ns <- many $ oneOf $ digits <> [ 'a', 'b', 'c', 'd', 'e', 'f' ]
   void eof
   let
-    x = (fromCharArray <<< Array.fromFoldable) (n : ns)
+    x = (fromCharArray <<< fromFoldable) (n : ns)
   if length ns /= 6 then fail x else pure x
 
 passportId :: Parser PassportId
@@ -244,7 +244,7 @@ passportId = do
   ns <- many $ oneOf digits
   void eof
   let
-    x = (fromCharArray <<< Array.fromFoldable) ns
+    x = (fromCharArray <<< fromFoldable) ns
   if length ns /= 9 then fail x else pure x
 
 height :: Parser Height

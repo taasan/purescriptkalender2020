@@ -6,7 +6,10 @@ import Data.Array.NonEmpty (NonEmptyArray)
 import Data.Filterable (filterMap)
 import Data.Foldable (class Foldable, indexl)
 import Data.List (List(..), (:))
+import Data.List as List
 import Data.Maybe (Maybe)
+import Data.Set (Set)
+import Data.Set as Set
 import Data.String (Pattern(..))
 import Data.String.CodeUnits (fromCharArray)
 import Data.String.Regex (match, split)
@@ -53,10 +56,22 @@ unsafeMatch (Pattern pattern) = match re
   re = unsafeRegex pattern noFlags
 
 fromCharList :: List Char -> String
-fromCharList = fromCharArray <<< Array.fromFoldable
+fromCharList = fromCharArray <<< fromFoldable
 
 -- | (*>) is the same as Haskell's (>>)
 applySecondWithPure :: forall b a m. Apply m => Applicative m => m b -> a -> m a
 applySecondWithPure m x = m *> pure x
 
 infixl 1 applySecondWithPure as *>+
+
+-- | Konverter mellom Foldables
+class
+  (Foldable f) <= CoerceFoldable f a where
+  fromFoldable :: forall g. Foldable g => g a -> f a
+
+instance coerceFoldableArray :: CoerceFoldable Array a where
+  fromFoldable = Array.fromFoldable
+else instance coerceFoldableList :: CoerceFoldable List a where
+  fromFoldable = List.fromFoldable
+else instance coerceFoldableSet :: Ord a => CoerceFoldable Set a where
+  fromFoldable = Set.fromFoldable

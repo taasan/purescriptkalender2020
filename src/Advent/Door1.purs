@@ -1,11 +1,10 @@
 module Advent.Door1 (open) where
 
 import Prelude
-import Advent.Lib ((<$$>), choose, lines)
+import Advent.Lib ((<$$>), choose, lines, fromFoldable)
 import Data.Either (Either)
 import Data.Foldable (find, product, sum)
 import Data.Int (fromString)
-import Data.List (fromFoldable)
 
 {- https://adventofcode.com/2020/day/1
 

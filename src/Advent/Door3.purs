@@ -46,8 +46,8 @@ What do you get if you multiply together the number of trees
 encountered on each of the listed slopes?
 -}
 import Prelude
-import Advent.Lib (index, lines)
-import Data.Array (fromFoldable, (..))
+import Advent.Lib (index, lines, fromFoldable)
+import Data.Array ((..))
 import Data.Either (Either)
 import Data.Filterable (compact, filter)
 import Data.Foldable (length, product)
