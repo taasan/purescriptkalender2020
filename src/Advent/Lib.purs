@@ -54,3 +54,13 @@ unsafeMatch (Pattern pattern) = match re
 
 fromCharList :: List Char -> String
 fromCharList = fromCharArray <<< Array.fromFoldable
+
+bindIgnore :: forall m a b. Bind m => m b -> m a -> m a
+bindIgnore m k = m >>= \_ -> k
+
+infixl 1 bindIgnore as >>
+
+bindIgnoreWithPure :: forall b a m. Bind m => Applicative m => m b -> a -> m a
+bindIgnoreWithPure m x = m >> pure x
+
+infixl 1 bindIgnoreWithPure as >>+
