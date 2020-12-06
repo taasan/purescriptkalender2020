@@ -45,11 +45,11 @@ import Data.Foldable (foldl, maximum, minimum)
 import Data.List (List(..), difference, drop, length, many, take, (..), (:))
 import Data.Maybe (Maybe(..))
 import Data.Unfoldable (replicateA)
-import Text.Parsing.Parser.Combinators (sepEndBy)
-import Text.Parsing.Parser.String (char)
-import Text.Parsing.Parser as P
 import Text.Parsing.Parser (ParseError(..), fail, parseErrorMessage, runParser)
+import Text.Parsing.Parser as P
+import Text.Parsing.Parser.Combinators (sepEndBy)
 import Text.Parsing.Parser.Pos (initialPos)
+import Text.Parsing.Parser.String (char)
 
 open :: String -> Either String String
 open input = do
