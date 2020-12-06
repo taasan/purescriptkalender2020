@@ -84,3 +84,9 @@ else instance coerceFoldableList :: CoerceFoldable List a where
   fromFoldable = List.fromFoldable
 else instance coerceFoldableSet :: Ord a => CoerceFoldable Set a where
   fromFoldable = Set.fromFoldable
+
+inRange :: forall a. Ord a => a -> a -> a -> Boolean
+inRange a b x
+  | a > b = inRange b a x
+
+inRange a b x = x >= a && x <= b

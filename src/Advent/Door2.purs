@@ -1,7 +1,7 @@
 module Advent.Door2 (open) where
 
 import Prelude
-import Advent.Lib ((!!), (<$$>), head, lines, unsafeSplit)
+import Advent.Lib ((!!), (<$$>), head, inRange, lines, unsafeSplit)
 import Data.Array (sort)
 import Data.Either (Either)
 import Data.Filterable (compact, filter)
@@ -92,7 +92,7 @@ open input = pure <<< show $ countValid <$> [ isValidPart1, isValidPart2 ]
   passwords = parsePassword <$$> lines input
 
   isValidPart1 :: PasswordEntry -> Boolean
-  isValidPart1 x = len >= x.num1 && len <= x.num2
+  isValidPart1 x = inRange x.num1 x.num2 len
     where
     len = (length <<< filter ((==) x.char)) $ toCharArray x.password
 

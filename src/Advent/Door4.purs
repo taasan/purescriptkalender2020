@@ -44,7 +44,7 @@ fields and valid values. Continue to treat cid as optional. In your
 batch file, how many passports are valid?
 -}
 import Prelude hiding (between, when)
-import Advent.Lib (fromCharList, fromFoldable, (<$$>), (*>+))
+import Advent.Lib (fromCharList, fromFoldable, inRange, (<$$>), (*>+))
 import Control.Alt ((<|>))
 import Data.Array as Array
 import Data.Either (Either(..), hush)
@@ -163,7 +163,9 @@ toTypedPassport p = do
     , cid: p.cid
     }
   where
-  fromString' a b str = fromString str >>= \x -> if x < a || x > b then Nothing else Just x
+  fromString' a b str = succeedIfInRange a b <$$> fromString str
+
+  succeedIfInRange a b x = if inRange a b x then pure x else Nothing
 
   toEyeColour str = case str of
     "amb" -> pure Amb
@@ -259,9 +261,9 @@ height = do
   parseUnit :: Parser (Int -> Height)
   parseUnit = ((string "in" *>+ In) <|> (string "cm" *>+ Cm))
 
-  validHeight (Cm x) = x >= 150 && x <= 193
+  validHeight (Cm x) = inRange 150 193 x
 
-  validHeight (In x) = x >= 59 && x <= 76
+  validHeight (In x) = inRange 59 76 x
 
 digitsNotZero :: Array Char
 digitsNotZero = [ '1', '2', '3', '4', '5', '6', '7', '8', '9' ]
