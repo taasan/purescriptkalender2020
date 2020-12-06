@@ -46,7 +46,7 @@ What do you get if you multiply together the number of trees
 encountered on each of the listed slopes?
 -}
 import Prelude
-import Advent.Lib (index, lines, fromFoldable)
+import Advent.Lib (index, lines, fromFoldable, (∘))
 import Data.Array ((..))
 import Data.Either (Either)
 import Data.Filterable (compact, filter)
@@ -59,27 +59,27 @@ data Content
   = Tree
   | OpenSquare
 
-derive instance eqContent :: Eq Content
+derive instance eqContent ∷ Eq Content
 
 type Slope
-  = { deltaCol :: Int, deltaRow :: Int }
+  = { deltaCol ∷ Int, deltaRow ∷ Int }
 
 type Coordinate
-  = { col :: Int, row :: Int }
+  = { col ∷ Int, row ∷ Int }
 
-mkSlope :: Int -> Int -> Slope
+mkSlope ∷ Int → Int → Slope
 mkSlope deltaCol deltaRow = { deltaCol, deltaRow }
 
 infixl 8 mkSlope as !
 
-open :: String -> Either String String
+open ∷ String → Either String String
 open str = pure $ show $ [ toNumber part1, part2 ]
   where
-  countTrees slope = (length <<< filter ((==) Tree)) $ collect slope
+  countTrees slope = (length ∘ filter ((==) Tree)) $ collect slope
 
   part1 = countTrees { deltaCol: 3, deltaRow: 1 }
 
-  part2 = product $ (toNumber <<< countTrees) <$> slopes
+  part2 = product $ (toNumber ∘ countTrees) <$> slopes
     where
     slopes =
       [ 1 ! 1
@@ -89,30 +89,30 @@ open str = pure $ show $ [ toNumber part1, part2 ]
       , 1 ! 2
       ]
 
-  grid :: Array (Array Content)
+  grid ∷ Array (Array Content)
   grid = parseLines <$> fromFoldable (lines str)
 
-  path :: Slope -> Array Coordinate
+  path ∷ Slope → Array Coordinate
   path slope = getCoordinate slope <$> 0 .. length grid
 
-  collect :: Slope -> Array Content
+  collect ∷ Slope → Array Content
   collect slope = compact $ getContent <$> path slope
 
-  getContent :: Coordinate -> Maybe Content
+  getContent ∷ Coordinate → Maybe Content
   getContent { row, col } = do
-    rowC <- index grid row
+    rowC ← index grid row
     index' rowC col
 
-  parseLines :: String -> Array Content
+  parseLines ∷ String → Array Content
   parseLines xs = parseContent <$> toCharArray xs
 
-  parseContent :: Char -> Content
+  parseContent ∷ Char → Content
   parseContent '#' = Tree
 
   parseContent _ = OpenSquare
 
-getCoordinate :: Slope -> Int -> Coordinate
+getCoordinate ∷ Slope → Int → Coordinate
 getCoordinate { deltaCol, deltaRow } row = { col: row * deltaCol, row: row * deltaRow }
 
-index' :: forall a. Array a -> Int -> Maybe a
+index' ∷ ∀ a. Array a → Int → Maybe a
 index' arr idx = index arr $ idx `mod` (length arr)

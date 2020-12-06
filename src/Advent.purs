@@ -16,7 +16,7 @@ data Door
   | Door5 String
   | Door6 String
 
-open :: Door -> Either String String
+open ∷ Door → Either String String
 open (Door1 x) = D1.open x
 
 open (Door2 x) = D2.open x

@@ -20,30 +20,30 @@ data Result
   | Correct
   | Wrong
 
-derive instance resultEq :: Eq Result
+derive instance resultEq ∷ Eq Result
 
-main :: Effect Unit
+main ∷ Effect Unit
 main = do
-  results <- openDoors
+  results ← openDoors
   let
     exitCode = if Wrong `elem` (snd <$> results) then 1 else 0
   traverse_ print results
   exit exitCode
   where
   color result = case result of
-    Unknown -> BrightYellow
-    Correct -> BrightGreen
-    Wrong -> BrightRed
+    Unknown → BrightYellow
+    Correct → BrightGreen
+    Wrong → BrightRed
 
-  ansi :: Color -> String -> String
+  ansi ∷ Color → String → String
   ansi x = withGraphics (bold <> underline <> foreground x)
 
   print (Tuple output result) = log $ ansi (color result) output
 
-openDoors :: Effect (Array (Tuple String Result))
-openDoors = traverseWithIndex (\i -> openDoor (i + 1)) doors
+openDoors ∷ Effect (Array (Tuple String Result))
+openDoors = traverseWithIndex (\i → openDoor (i + 1)) doors
 
-doors :: Array (Tuple (String -> Door) (Either String String))
+doors ∷ Array (Tuple (String → Door) (Either String String))
 doors =
   [ Tuple Door1 (Right "[1020036,286977330]")
   , Tuple Door2 (Right "[645,737]")
@@ -53,9 +53,9 @@ doors =
   , Tuple Door6 (Right "[6775,3356]")
   ]
 
-openDoor :: Int -> Tuple (String -> Door) (Either String String) -> Effect (Tuple String Result)
+openDoor ∷ Int → Tuple (String → Door) (Either String String) → Effect (Tuple String Result)
 openDoor day (Tuple door correct) = do
-  input <- getInput day
+  input ← getInput day
   let
     answer = open (door input)
 
@@ -72,5 +72,5 @@ openDoor day (Tuple door correct) = do
 
   output x = show x
 
-getInput :: Int -> Effect String
+getInput ∷ Int → Effect String
 getInput day = readTextFile UTF8 $ "input/" <> show day

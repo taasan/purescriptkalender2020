@@ -44,7 +44,7 @@ fields and valid values. Continue to treat cid as optional. In your
 batch file, how many passports are valid?
 -}
 import Prelude hiding (between, when)
-import Advent.Lib (fromCharList, fromFoldable, inRange, (<$$>), (*>+))
+import Advent.Lib (fromCharList, fromFoldable, inRange, (<$$>), (*>+), (∘))
 import Control.Alt ((<|>))
 import Data.Array as Array
 import Data.Either (Either(..), hush)
@@ -63,7 +63,7 @@ import Text.Parsing.Parser.String (char, eof, oneOf, noneOf, string)
 import Text.Parsing.Parser as P
 import Text.Parsing.Parser (ParseError, fail, runParser)
 
-open :: String -> Either String String
+open ∷ String → Either String String
 open input =
   if length errors /= 0 then
     Left $ show errors
@@ -72,14 +72,14 @@ open input =
   where
   -- Litt klumsete her.  Fant ikke ut hvordan jeg skulle separere
   -- passene med blank linje samtidig som \n også er feltseparator.
-  xs :: List (Either ParseError PassportMap)
-  xs = fromFoldable $ ((flip runParser) fields <<< trim) <$> (split (Pattern "\n\n") input)
+  xs ∷ List (Either ParseError PassportMap)
+  xs = fromFoldable $ ((flip runParser) fields ∘ trim) <$> (split (Pattern "\n\n") input)
 
   { left: errors, right: passportMaps } = partitionMap identity $ xs
 
   passports = fromMap <$$> passportMaps
 
-  answer :: Array Int
+  answer ∷ Array Int
   answer = [ length passports, length $ toTypedPassport <$$> passports ]
 
 data Key
@@ -92,9 +92,9 @@ data Key
   | Pid
   | Cid
 
-derive instance eqKey :: Eq Key
+derive instance eqKey ∷ Eq Key
 
-derive instance ordKey :: Ord Key
+derive instance ordKey ∷ Ord Key
 
 type Field
   = Tuple Key String
@@ -119,39 +119,39 @@ type PassportId
   = String
 
 type Passport
-  = { byr :: String
-    , iyr :: String
-    , eyr :: String
-    , hgt :: String
-    , hcl :: String
-    , ecl :: String
-    , pid :: String
-    , cid :: Maybe String
+  = { byr ∷ String
+    , iyr ∷ String
+    , eyr ∷ String
+    , hgt ∷ String
+    , hcl ∷ String
+    , ecl ∷ String
+    , pid ∷ String
+    , cid ∷ Maybe String
     }
 
 type TypedPassport
-  = { byr :: Int
-    , iyr :: Int
-    , eyr :: Int
-    , hgt :: Height
-    , hcl :: HairColour
-    , ecl :: EyeColour
-    , pid :: PassportId
-    , cid :: Maybe String
+  = { byr ∷ Int
+    , iyr ∷ Int
+    , eyr ∷ Int
+    , hgt ∷ Height
+    , hcl ∷ HairColour
+    , ecl ∷ EyeColour
+    , pid ∷ PassportId
+    , cid ∷ Maybe String
     }
 
 type PassportMap
   = Map Key String
 
-toTypedPassport :: Passport -> Maybe TypedPassport
+toTypedPassport ∷ Passport → Maybe TypedPassport
 toTypedPassport p = do
-  byr <- fromString' 1920 2002 p.byr
-  iyr <- fromString' 2010 2020 p.iyr
-  eyr <- fromString' 2020 2030 p.eyr
-  hgt <- hush $ runParser p.hgt height
-  hcl <- hush $ runParser p.hcl hairColour
-  ecl <- toEyeColour p.ecl
-  pid <- hush $ runParser p.pid passportId
+  byr ← fromString' 1920 2002 p.byr
+  iyr ← fromString' 2010 2020 p.iyr
+  eyr ← fromString' 2020 2030 p.eyr
+  hgt ← hush $ runParser p.hgt height
+  hcl ← hush $ runParser p.hcl hairColour
+  ecl ← toEyeColour p.ecl
+  pid ← hush $ runParser p.pid passportId
   pure
     { byr
     , iyr
@@ -168,24 +168,24 @@ toTypedPassport p = do
   succeedIfInRange a b x = if inRange a b x then pure x else Nothing
 
   toEyeColour str = case str of
-    "amb" -> pure Amb
-    "blu" -> pure Blu
-    "brn" -> pure Brn
-    "gry" -> pure Gry
-    "grn" -> pure Grn
-    "hzl" -> pure Hzl
-    "oth" -> pure Oth
-    _ -> Nothing
+    "amb" → pure Amb
+    "blu" → pure Blu
+    "brn" → pure Brn
+    "gry" → pure Gry
+    "grn" → pure Grn
+    "hzl" → pure Hzl
+    "oth" → pure Oth
+    _ → Nothing
 
-fromMap :: PassportMap -> Maybe Passport
+fromMap ∷ PassportMap → Maybe Passport
 fromMap m = do
-  byr <- M.lookup Byr m
-  iyr <- M.lookup Iyr m
-  eyr <- M.lookup Eyr m
-  hgt <- M.lookup Hgt m
-  hcl <- M.lookup Hcl m
-  ecl <- M.lookup Ecl m
-  pid <- M.lookup Pid m
+  byr ← M.lookup Byr m
+  iyr ← M.lookup Iyr m
+  eyr ← M.lookup Eyr m
+  hgt ← M.lookup Hgt m
+  hcl ← M.lookup Hcl m
+  ecl ← M.lookup Ecl m
+  pid ← M.lookup Pid m
   pure
     { byr
     , iyr
@@ -201,7 +201,7 @@ fromMap m = do
 type Parser
   = P.Parser String
 
-key :: Parser Key
+key ∷ Parser Key
 key =
   (string "byr" *>+ Byr)
     <|> (string "iyr" *>+ Iyr)
@@ -212,61 +212,61 @@ key =
     <|> (string "pid" *>+ Pid)
     <|> (optional (string "cid") *>+ Cid)
 
-field :: Parser Field
+field ∷ Parser Field
 field = do
-  key' <- key
+  key' ← key
   void $ char ':'
-  value <- many $ noneOf [ ' ', '\n' ]
+  value ← many $ noneOf [ ' ', '\n' ]
   pure $ Tuple key' $ fromCharList value
 
-fields :: Parser PassportMap
+fields ∷ Parser PassportMap
 fields = do
-  xs <- field `sepBy` oneOf [ ' ', '\n' ]
-  (pure <<< M.fromFoldable) xs
+  xs ← field `sepBy` oneOf [ ' ', '\n' ]
+  (pure ∘ M.fromFoldable) xs
 
-unsigned :: Parser Int
+unsigned ∷ Parser Int
 unsigned = do
-  n <- oneOf digitsNotZero
-  ns <- many (oneOf digits)
-  case fromString $ (fromCharArray <<< fromFoldable) $ n : ns of
-    Just x -> pure x
-    _ -> fail "Invalid number"
+  n ← oneOf digitsNotZero
+  ns ← many (oneOf digits)
+  case fromString $ (fromCharArray ∘ fromFoldable) $ n : ns of
+    Just x → pure x
+    _ → fail "Invalid number"
 
-hairColour :: Parser HairColour
+hairColour ∷ Parser HairColour
 hairColour = do
-  n <- char '#'
-  ns <- many $ oneOf $ digits <> [ 'a', 'b', 'c', 'd', 'e', 'f' ]
+  n ← char '#'
+  ns ← many $ oneOf $ digits <> [ 'a', 'b', 'c', 'd', 'e', 'f' ]
   void eof
   let
-    x = (fromCharArray <<< fromFoldable) (n : ns)
+    x = (fromCharArray ∘ fromFoldable) (n : ns)
   if length ns /= 6 then fail x else pure x
 
-passportId :: Parser PassportId
+passportId ∷ Parser PassportId
 passportId = do
-  ns <- many $ oneOf digits
+  ns ← many $ oneOf digits
   void eof
   let
-    x = (fromCharArray <<< fromFoldable) ns
+    x = (fromCharArray ∘ fromFoldable) ns
   if length ns /= 9 then fail x else pure x
 
-height :: Parser Height
+height ∷ Parser Height
 height = do
-  h <- unsigned
-  u <- parseUnit
+  h ← unsigned
+  u ← parseUnit
   void eof
   let
     height' = u h
   if validHeight height' then pure height' else fail "Invalid height"
   where
-  parseUnit :: Parser (Int -> Height)
+  parseUnit ∷ Parser (Int → Height)
   parseUnit = ((string "in" *>+ In) <|> (string "cm" *>+ Cm))
 
   validHeight (Cm x) = inRange 150 193 x
 
   validHeight (In x) = inRange 59 76 x
 
-digitsNotZero :: Array Char
+digitsNotZero ∷ Array Char
 digitsNotZero = [ '1', '2', '3', '4', '5', '6', '7', '8', '9' ]
 
-digits :: Array Char
+digits ∷ Array Char
 digits = Array.snoc digitsNotZero '0'

@@ -1,7 +1,7 @@
 module Advent.Door6 (open) where
 
 import Prelude
-import Advent.Lib (fromFoldable, intersections)
+import Advent.Lib (fromFoldable, intersections, (∘))
 import Data.Either (Either)
 import Data.Foldable (sum)
 import Data.Set (size)
@@ -41,18 +41,18 @@ You don't need to identify the questions to which anyone answered
 For each group, count the number of questions to which everyone
 answered "yes". What is the sum of those counts?
 -}
-open :: String -> Either String String
+open ∷ String → Either String String
 open input = pure $ show $ answers
   where
   -- join is for part 1, intersections is for part 2
-  answers = sum <<< for groups <<< collector <$> [ join, intersections ]
+  answers = sum ∘ for groups ∘ collector <$> [ join, intersections ]
 
   for = flip map
 
   -- use Set to remove duplicates
-  collector f = size <<< fromFoldable <<< f
+  collector f = size ∘ fromFoldable ∘ f
 
-  groups :: Array (Array (Array Char))
+  groups ∷ Array (Array (Array Char))
   groups =
-    ((map toCharArray) <<< split (Pattern "\n"))
+    ((map toCharArray) ∘ split (Pattern "\n"))
       <$> split (Pattern "\n\n") (trim input)

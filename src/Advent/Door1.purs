@@ -1,7 +1,7 @@
 module Advent.Door1 (open) where
 
 import Prelude
-import Advent.Lib ((<$$>), choose, lines, fromFoldable)
+import Advent.Lib ((<$$>), (∘), choose, lines, fromFoldable)
 import Data.Either (Either)
 import Data.Foldable (find, product, sum)
 import Data.Int (fromString)
@@ -43,11 +43,11 @@ Using the above example again, the three entries that sum to 2020 are
 In your expense report, what is the product of the three entries that
 sum to 2020?
 -}
-open :: String -> Either String String
+open ∷ String → Either String String
 open input = pure $ show $ calculate <$$> [ 2, 3 ]
   where
   calculate n = do
-    ys <- find ((_ == 2020) <<< sum) $ choose n xs
+    ys ← find ((_ == 2020) ∘ sum) $ choose n xs
     pure $ product ys
 
   xs = fromFoldable $ fromString <$$> lines input

@@ -1,7 +1,7 @@
 module Advent.Door2 (open) where
 
 import Prelude
-import Advent.Lib ((!!), (<$$>), head, inRange, lines, unsafeSplit)
+import Advent.Lib ((!!), (<$$>), (∘), head, inRange, lines, unsafeSplit)
 import Data.Array (sort)
 import Data.Either (Either)
 import Data.Filterable (compact, filter)
@@ -66,38 +66,38 @@ How many passwords are valid according to the new interpretation of
 the policies?
 -}
 type PasswordEntry
-  = { num1 :: Int
-    , num2 :: Int
-    , char :: Char
-    , password :: String
+  = { num1 ∷ Int
+    , num2 ∷ Int
+    , char ∷ Char
+    , password ∷ String
     }
 
-parsePassword :: String -> Maybe PasswordEntry
+parsePassword ∷ String → Maybe PasswordEntry
 parsePassword str = do
-  n1 <- head xs >>= fromString
-  n2 <- xs !! 1 >>= fromString
-  c <- xs !! 2 >>= charAt 0
-  p <- xs !! 3
+  n1 ← head xs >>= fromString
+  n2 ← xs !! 1 >>= fromString
+  c ← xs !! 2 >>= charAt 0
+  p ← xs !! 3
   pure { num1: n1, num2: n2, char: c, password: p }
   where
-  xs = (filter ((/=) "") <<< unsafeSplit (Pattern """[-: ]""")) str
+  xs = (filter ((/=) "") ∘ unsafeSplit (Pattern """[-: ]""")) str
 
-open :: String -> Either String String
-open input = pure <<< show $ countValid <$> [ isValidPart1, isValidPart2 ]
+open ∷ String → Either String String
+open input = pure ∘ show $ countValid <$> [ isValidPart1, isValidPart2 ]
   where
-  countValid :: (PasswordEntry -> Boolean) -> Int
-  countValid p = (length <<< filter p) passwords
+  countValid ∷ (PasswordEntry → Boolean) → Int
+  countValid p = (length ∘ filter p) passwords
 
-  passwords :: Array PasswordEntry
+  passwords ∷ Array PasswordEntry
   passwords = parsePassword <$$> lines input
 
-  isValidPart1 :: PasswordEntry -> Boolean
+  isValidPart1 ∷ PasswordEntry → Boolean
   isValidPart1 x = inRange x.num1 x.num2 len
     where
-    len = (length <<< filter ((==) x.char)) $ toCharArray x.password
+    len = (length ∘ filter ((==) x.char)) $ toCharArray x.password
 
-  isValidPart2 :: PasswordEntry -> Boolean
-  isValidPart2 x = result $ (sort <<< map ((==) x.char)) chars
+  isValidPart2 ∷ PasswordEntry → Boolean
+  isValidPart2 x = result $ (sort ∘ map ((==) x.char)) chars
     where
     chars = compact $ [ charAt (x.num1 - 1) password, charAt (x.num2 - 1) password ]
 

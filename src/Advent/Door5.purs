@@ -38,7 +38,7 @@ Your seat wasn't at the very front or back, though; the seats with IDs
 What is the ID of your seat?
 -}
 import Prelude
-import Advent.Lib ((*>+))
+import Advent.Lib ((*>+), (∘))
 import Control.Alt ((<|>))
 import Data.Either (Either(..))
 import Data.Foldable (foldl, maximum, minimum)
@@ -51,29 +51,29 @@ import Text.Parsing.Parser.Combinators (sepEndBy)
 import Text.Parsing.Parser.Pos (initialPos)
 import Text.Parsing.Parser.String (char)
 
-open :: String -> Either String String
+open ∷ String → Either String String
 open input = do
   case doOpen of
-    Right x -> pure x
-    Left err -> Left $ parseErrorMessage err
+    Right x → pure x
+    Left err → Left $ parseErrorMessage err
   where
-  doOpen :: Either ParseError String
+  doOpen ∷ Either ParseError String
   doOpen = do
-    xs <- runParser input positions
+    xs ← runParser input positions
     let
       seats = seat <$> xs
-    maxSeat <- fromMaybe "maxSeat" $ maximum seats
-    minSeat <- fromMaybe "minSeat" $ minimum seats
+    maxSeat ← fromMaybe "maxSeat" $ maximum seats
+    minSeat ← fromMaybe "minSeat" $ minimum seats
     let
       availableSeats = difference (minSeat .. maxSeat) seats
-    mySeat <- case availableSeats of
-      (x : Nil) -> pure x
-      _ -> fromMaybe "Expected singleton list for mySeat" $ Nothing
-    (pure <<< show) [ maxSeat, mySeat ]
+    mySeat ← case availableSeats of
+      (x : Nil) → pure x
+      _ → fromMaybe "Expected singleton list for mySeat" $ Nothing
+    (pure ∘ show) [ maxSeat, mySeat ]
     where
     seat { row, col } = row * 8 + col
 
-  fromMaybe :: forall a. String -> Maybe a -> Either P.ParseError a
+  fromMaybe ∷ ∀ a. String → Maybe a → Either P.ParseError a
   fromMaybe reason Nothing = Left $ ParseError reason $ initialPos
 
   fromMaybe _ (Just x) = pure x
@@ -83,28 +83,28 @@ data Partition
   | Last
 
 type Position
-  = { row :: Int, col :: Int }
+  = { row ∷ Int, col ∷ Int }
 
 type Parser
   = P.Parser String
 
-rowPartition :: Parser Partition
+rowPartition ∷ Parser Partition
 rowPartition =
   (char 'F' *>+ First)
     <|> (char 'B' *>+ Last)
 
-colPartition :: Parser Partition
+colPartition ∷ Parser Partition
 colPartition =
   (char 'L' *>+ First)
     <|> (char 'R' *>+ Last)
 
-position :: Parser Position
+position ∷ Parser Position
 position = do
-  row <- replicateA 7 rowPartition >>= getPos (0 .. 127)
-  col <- replicateA 3 colPartition >>= getPos (0 .. 7)
+  row ← replicateA 7 rowPartition >>= getPos (0 .. 127)
+  col ← replicateA 3 colPartition >>= getPos (0 .. 7)
   pure $ { col, row }
   where
-  getPos :: List Int -> List Partition -> Parser Int
+  getPos ∷ List Int → List Partition → Parser Int
   getPos ys ps = f $ foldl partition ys ps
     where
     -- We should have a singleton here
@@ -112,7 +112,7 @@ position = do
 
     f _ = fail "Expected a singleton list"
 
-  partition :: List Int -> Partition -> List Int
+  partition ∷ List Int → Partition → List Int
   partition seats p = (f p) n seats
     where
     n = (length seats) / 2
@@ -121,5 +121,5 @@ position = do
 
     f _ = drop
 
-positions :: Parser (List Position)
+positions ∷ Parser (List Position)
 positions = position `sepEndBy` many (char '\n')
