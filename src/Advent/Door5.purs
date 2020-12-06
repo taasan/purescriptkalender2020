@@ -44,6 +44,7 @@ import Data.Either (Either(..))
 import Data.Foldable (foldl, maximum, minimum)
 import Data.List (List(..), difference, drop, length, many, take, (..), (:))
 import Data.Maybe (Maybe(..))
+import Data.Unfoldable (replicateA)
 import Text.Parsing.Parser.Combinators (sepEndBy)
 import Text.Parsing.Parser.String (char)
 import Text.Parsing.Parser as P
@@ -99,12 +100,10 @@ colPartition =
 
 position :: Parser Position
 position = do
-  row <- many rowPartition >>= verifyLength 7 >>= getPos (0 .. 127)
-  col <- many colPartition >>= verifyLength 3 >>= getPos (0 .. 7)
-  pure { col, row }
+  row <- replicateA 7 rowPartition >>= getPos (0 .. 127)
+  col <- replicateA 3 colPartition >>= getPos (0 .. 7)
+  pure $ { col, row }
   where
-  verifyLength n ys = if length ys /= n then fail "Invalid length" else pure ys
-
   getPos :: List Int -> List Partition -> Parser Int
   getPos ys ps = f $ foldl partition ys ps
     where
