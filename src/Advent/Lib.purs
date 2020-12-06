@@ -64,16 +64,25 @@ applySecondWithPure m x = m *> pure x
 
 infixl 1 applySecondWithPure as *>+
 
-class
-  (Foldable f, Foldable g) <= Intersectable f g where
-  intersections ::
-    forall a.
-    Eq a => f (g a) -> g a
+-- | Intersection of multiple foldables
+intersections ::
+  forall a f g.
+  Ord a =>
+  Bind f =>
+  CoerceFoldable f a =>
+  CoerceFoldable g a =>
+  f (f a) -> g a
+intersections xs = fromFoldable $ foldl intersect (join xs) xs
 
-instance intersectableArrayArray :: Intersectable Array Array where
-  intersections xs = foldl Array.intersect (Array.concat xs) xs
+intersect ::
+  forall f g m a.
+  Ord a => Foldable f => Foldable g => CoerceFoldable m a => g a -> f a -> m a
+intersect xs ys = fromFoldable $ Set.intersection xs' ys'
+  where
+  xs' = fromFoldable xs
 
--- | Konverter mellom Foldables
+  ys' = fromFoldable ys
+
 class
   (Foldable f) <= CoerceFoldable f a where
   fromFoldable :: forall g. Foldable g => g a -> f a

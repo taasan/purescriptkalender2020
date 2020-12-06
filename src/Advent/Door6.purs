@@ -2,7 +2,6 @@ module Advent.Door6 (open) where
 
 import Prelude
 import Advent.Lib (fromFoldable, intersections)
-import Data.Array (concat)
 import Data.Either (Either)
 import Data.Foldable (sum)
 import Data.Set (size)
@@ -45,8 +44,8 @@ answered "yes". What is the sum of those counts?
 open :: String -> Either String String
 open input = pure $ show $ answers
   where
-  -- concat is for part 1, intersections is for part 2
-  answers = sum <<< for groups <<< collector <$> [ concat, intersections ]
+  -- join is for part 1, intersections is for part 2
+  answers = sum <<< for groups <<< collector <$> [ join, intersections ]
 
   for = flip map
 
