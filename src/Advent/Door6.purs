@@ -1,11 +1,11 @@
 module Advent.Door6 (open) where
 
 import Prelude
-import Advent.Lib (intersections)
+import Advent.Lib (fromFoldable, intersections)
 import Data.Array (concat)
 import Data.Either (Either)
-import Data.Foldable (length, sum)
-import Data.Set as Set
+import Data.Foldable (sum)
+import Data.Set (size)
 import Data.String (Pattern(..), split, trim)
 import Data.String.CodeUnits (toCharArray)
 
@@ -43,19 +43,17 @@ For each group, count the number of questions to which everyone
 answered "yes". What is the sum of those counts?
 -}
 open :: String -> Either String String
-open input = pure $ show $ [ part1, part2 ]
+open input = pure $ show $ answers
   where
-  part1 :: Int
-  part1 = sum $ length <$> toSet <<< concat <$> groups
+  -- concat is for part 1, intersections is for part 2
+  answers = sum <<< for groups <<< collector <$> [ concat, intersections ]
+
+  for = flip map
+
+  -- use Set to remove duplicates
+  collector f = size <<< fromFoldable <<< f
 
   groups :: Array (Array (Array Char))
   groups =
     ((map toCharArray) <<< split (Pattern "\n"))
       <$> split (Pattern "\n\n") (trim input)
-
-  part2 :: Int
-  part2 = sum (f <$> groups)
-    where
-    f = length <<< toSet <<< intersections
-
-  toSet = Set.fromFoldable
