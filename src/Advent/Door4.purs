@@ -44,24 +44,24 @@ fields and valid values. Continue to treat cid as optional. In your
 batch file, how many passports are valid?
 -}
 import Prelude hiding (between, when)
-import Advent.Lib (fromCharList, fromFoldable, inRange, (<$$>), (*>+), (∘))
+import Advent.Lib (fromCharList, inRange, (<$$>), (*>+), (∘))
 import Control.Alt ((<|>))
 import Data.Array as Array
 import Data.Either (Either(..), hush)
 import Data.Filterable (partitionMap)
 import Data.Foldable (length)
 import Data.Int (fromString)
-import Data.List (List, many, (:))
+import Data.List (many, (:))
 import Data.Map (Map)
 import Data.Map as M
 import Data.Maybe (Maybe(..))
 import Data.String (Pattern(..), split, trim)
-import Data.String.CodeUnits (fromCharArray)
 import Data.Tuple (Tuple(..))
+import Data.Unfoldable (replicateA)
 import Text.Parsing.Parser.Combinators (optional, sepBy)
 import Text.Parsing.Parser.String (char, eof, oneOf, noneOf, string)
 import Text.Parsing.Parser as P
-import Text.Parsing.Parser (ParseError, fail, runParser)
+import Text.Parsing.Parser (fail, runParser)
 
 open ∷ String → Either String String
 open input =
@@ -72,8 +72,7 @@ open input =
   where
   -- Litt klumsete her.  Fant ikke ut hvordan jeg skulle separere
   -- passene med blank linje samtidig som \n også er feltseparator.
-  xs ∷ List (Either ParseError PassportMap)
-  xs = fromFoldable $ ((flip runParser) fields ∘ trim) <$> (split (Pattern "\n\n") input)
+  xs = ((flip runParser) fields ∘ trim) <$> (split (Pattern "\n\n") input)
 
   { left: errors, right: passportMaps } = partitionMap identity $ xs
 
@@ -228,26 +227,22 @@ unsigned ∷ Parser Int
 unsigned = do
   n ← oneOf digitsNotZero
   ns ← many (oneOf digits)
-  case fromString $ (fromCharArray ∘ fromFoldable) $ n : ns of
+  case fromString $ fromCharList (n : ns) of
     Just x → pure x
     _ → fail "Invalid number"
 
 hairColour ∷ Parser HairColour
 hairColour = do
   n ← char '#'
-  ns ← many $ oneOf $ digits <> [ 'a', 'b', 'c', 'd', 'e', 'f' ]
+  ns ← replicateA 6 $ oneOf $ digits <> [ 'a', 'b', 'c', 'd', 'e', 'f' ]
   void eof
-  let
-    x = (fromCharArray ∘ fromFoldable) (n : ns)
-  if length ns /= 6 then fail x else pure x
+  pure $ fromCharList (n : ns)
 
 passportId ∷ Parser PassportId
 passportId = do
-  ns ← many $ oneOf digits
+  ns ← replicateA 9 $ oneOf digits
   void eof
-  let
-    x = (fromCharArray ∘ fromFoldable) ns
-  if length ns /= 9 then fail x else pure x
+  pure $ fromCharList ns
 
 height ∷ Parser Height
 height = do
@@ -259,7 +254,7 @@ height = do
   if validHeight height' then pure height' else fail "Invalid height"
   where
   parseUnit ∷ Parser (Int → Height)
-  parseUnit = ((string "in" *>+ In) <|> (string "cm" *>+ Cm))
+  parseUnit = (string "in" *>+ In) <|> (string "cm" *>+ Cm)
 
   validHeight (Cm x) = inRange 150 193 x
 
@@ -269,4 +264,4 @@ digitsNotZero ∷ Array Char
 digitsNotZero = [ '1', '2', '3', '4', '5', '6', '7', '8', '9' ]
 
 digits ∷ Array Char
-digits = Array.snoc digitsNotZero '0'
+digits = Array.cons '0' digitsNotZero

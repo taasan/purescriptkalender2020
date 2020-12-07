@@ -16,8 +16,8 @@ import Data.String.Regex (match, split)
 import Data.String.Regex.Flags (noFlags)
 import Data.String.Regex.Unsafe (unsafeRegex)
 
-lines ∷ String → Array String
-lines = unsafeSplit (Pattern "\n")
+lines ∷ ∀ f. FromFoldable f String ⇒ String → f String
+lines str = fromFoldable $ unsafeSplit (Pattern "\n") str
 
 {-
 Stolen from https://hackage.haskell.org/package/combinat-0.2.9.0/docs/src/Math.Combinat.Sets.html#choose
@@ -69,14 +69,14 @@ intersections ∷
   ∀ a f g.
   Ord a ⇒
   Bind f ⇒
-  CoerceFoldable f a ⇒
-  CoerceFoldable g a ⇒
+  FromFoldable f a ⇒
+  FromFoldable g a ⇒
   f (f a) → g a
 intersections xs = fromFoldable $ foldl intersect (join xs) xs
 
 intersect ∷
-  ∀ f g m a.
-  Ord a ⇒ Foldable f ⇒ Foldable g ⇒ CoerceFoldable m a ⇒ g a → f a → m a
+  ∀ f1 f2 f3 a.
+  Ord a ⇒ Foldable f1 ⇒ Foldable f2 ⇒ FromFoldable f3 a ⇒ f1 a → f2 a → f3 a
 intersect xs ys = fromFoldable $ Set.intersection xs' ys'
   where
   xs' = fromFoldable xs
@@ -84,14 +84,14 @@ intersect xs ys = fromFoldable $ Set.intersection xs' ys'
   ys' = fromFoldable ys
 
 class
-  (Foldable f) ⇐ CoerceFoldable f a where
+  (Foldable f) ⇐ FromFoldable f a where
   fromFoldable ∷ ∀ g. Foldable g ⇒ g a → f a
 
-instance coerceFoldableArray ∷ CoerceFoldable Array a where
+instance fromFoldableArray ∷ FromFoldable Array a where
   fromFoldable = Array.fromFoldable
-else instance coerceFoldableList ∷ CoerceFoldable List a where
+else instance fromFoldableList ∷ FromFoldable List a where
   fromFoldable = List.fromFoldable
-else instance coerceFoldableSet ∷ Ord a ⇒ CoerceFoldable Set a where
+else instance fromFoldableSet ∷ Ord a ⇒ FromFoldable Set a where
   fromFoldable = Set.fromFoldable
 
 inRange ∷ ∀ a. Ord a ⇒ a → a → a → Boolean

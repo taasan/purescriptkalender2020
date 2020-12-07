@@ -1,7 +1,7 @@
 module Advent.Door1 (open) where
 
 import Prelude
-import Advent.Lib ((<$$>), (∘), choose, lines, fromFoldable)
+import Advent.Lib ((<$$>), (∘), choose, lines)
 import Data.Either (Either)
 import Data.Foldable (find, product, sum)
 import Data.Int (fromString)
@@ -50,4 +50,4 @@ open input = pure $ show $ calculate <$$> [ 2, 3 ]
     ys ← find ((_ == 2020) ∘ sum) $ choose n xs
     pure $ product ys
 
-  xs = fromFoldable $ fromString <$$> lines input
+  xs = fromString <$$> lines input
