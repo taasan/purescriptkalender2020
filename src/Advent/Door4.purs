@@ -45,8 +45,8 @@ batch file, how many passports are valid?
 -}
 import Prelude hiding (between, when)
 import Advent.Lib (fromCharList, inRange, (<$$>), (*>+), (∘))
+import Advent.Parser (Parser, digits, unsigned)
 import Control.Alt ((<|>))
-import Data.Array as Array
 import Data.Either (Either(..), hush)
 import Data.Filterable (partitionMap)
 import Data.Foldable (length)
@@ -60,7 +60,6 @@ import Data.Tuple (Tuple(..))
 import Data.Unfoldable (replicateA)
 import Text.Parsing.Parser.Combinators (optional, sepBy)
 import Text.Parsing.Parser.String (char, eof, oneOf, noneOf, string)
-import Text.Parsing.Parser as P
 import Text.Parsing.Parser (fail, runParser)
 
 open ∷ String → Either String String
@@ -197,9 +196,6 @@ fromMap m = do
     }
 
 -- PARSERS
-type Parser
-  = P.Parser String
-
 key ∷ Parser Key
 key =
   (string "byr" *>+ Byr)
@@ -222,14 +218,6 @@ fields ∷ Parser PassportMap
 fields = do
   xs ← field `sepBy` oneOf [ ' ', '\n' ]
   (pure ∘ M.fromFoldable) xs
-
-unsigned ∷ Parser Int
-unsigned = do
-  n ← oneOf digitsNotZero
-  ns ← many (oneOf digits)
-  case fromString $ fromCharList (n : ns) of
-    Just x → pure x
-    _ → fail "Invalid number"
 
 hairColour ∷ Parser HairColour
 hairColour = do
@@ -259,9 +247,3 @@ height = do
   validHeight (Cm x) = inRange 150 193 x
 
   validHeight (In x) = inRange 59 76 x
-
-digitsNotZero ∷ Array Char
-digitsNotZero = [ '1', '2', '3', '4', '5', '6', '7', '8', '9' ]
-
-digits ∷ Array Char
-digits = Array.cons '0' digitsNotZero

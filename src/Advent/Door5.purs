@@ -39,6 +39,7 @@ What is the ID of your seat?
 -}
 import Prelude
 import Advent.Lib ((*>+), (∘))
+import Advent.Parser (Parser)
 import Control.Alt ((<|>))
 import Data.Either (Either(..))
 import Data.Foldable (foldl, maximum, minimum)
@@ -46,7 +47,6 @@ import Data.List (List(..), difference, drop, length, many, take, (..), (:))
 import Data.Maybe (Maybe(..))
 import Data.Unfoldable (replicateA)
 import Text.Parsing.Parser (ParseError(..), fail, parseErrorMessage, runParser)
-import Text.Parsing.Parser as P
 import Text.Parsing.Parser.Combinators (sepEndBy)
 import Text.Parsing.Parser.Pos (initialPos)
 import Text.Parsing.Parser.String (char)
@@ -73,7 +73,7 @@ open input = do
     where
     seat { row, col } = row * 8 + col
 
-  fromMaybe ∷ ∀ a. String → Maybe a → Either P.ParseError a
+  fromMaybe ∷ ∀ a. String → Maybe a → Either ParseError a
   fromMaybe reason Nothing = Left $ ParseError reason $ initialPos
 
   fromMaybe _ (Just x) = pure x
@@ -84,9 +84,6 @@ data Partition
 
 type Position
   = { row ∷ Int, col ∷ Int }
-
-type Parser
-  = P.Parser String
 
 rowPartition ∷ Parser Partition
 rowPartition =
