@@ -100,4 +100,6 @@ inRange a b x
 
 inRange a b x = x >= a && x <= b
 
+infixl 4 inRange as ..?
+
 infixr 9 compose as ∘
