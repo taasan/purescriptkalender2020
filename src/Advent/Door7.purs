@@ -135,8 +135,10 @@ fillBags rules = Map.fromFoldable xs
   xs = (\c → fillBag c >>= pure ∘ Tuple c) <$?> fromFoldable (keys rules)
 
   fillBag ∷ Color → Maybe Bag
-  fillBag c = lookup c rules >>= \{ content } → (pure ∘ Branch (Tuple 1 c)) (f <$?> content)
+  fillBag = (flip lookup) rules >=> filler
     where
+    filler { content, color } = (pure ∘ Branch (Tuple 1 color)) (f <$?> content)
+
     f { color, count } =
       lookup color rules
         *> fillBag color
