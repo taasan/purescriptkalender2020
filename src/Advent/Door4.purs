@@ -44,7 +44,7 @@ fields and valid values. Continue to treat cid as optional. In your
 batch file, how many passports are valid?
 -}
 import Prelude hiding (between, when)
-import Advent.Lib (fromCharList, (*>+), (..?), (<$$>), (∘))
+import Advent.Lib (fromCharList, (*>+), (..?), (<$?>), (∘))
 import Advent.Parser (Parser, digits, unsigned)
 import Control.Alt ((<|>))
 import Data.Either (Either(..), hush)
@@ -75,10 +75,10 @@ open input =
 
   { left: errors, right: passportMaps } = partitionMap identity $ xs
 
-  passports = fromMap <$$> passportMaps
+  passports = fromMap <$?> passportMaps
 
   answer ∷ Array Int
-  answer = [ length passports, length $ toTypedPassport <$$> passports ]
+  answer = [ length passports, length $ toTypedPassport <$?> passports ]
 
 data Key
   = Byr
@@ -161,7 +161,7 @@ toTypedPassport p = do
     , cid: p.cid
     }
   where
-  fromString' a b str = succeedIfInRange a b <$$> fromString str
+  fromString' a b str = succeedIfInRange a b <$?> fromString str
 
   succeedIfInRange a b x = if (a ..? b) x then pure x else Nothing
 

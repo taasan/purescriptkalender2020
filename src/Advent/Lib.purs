@@ -43,7 +43,7 @@ index = flip indexl
 
 infixl 8 index as !!
 
-infixl 4 filterMap as <$$>
+infixl 4 filterMap as <$?>
 
 unsafeSplit ∷ Pattern → String → Array String
 unsafeSplit (Pattern pattern) = split re
