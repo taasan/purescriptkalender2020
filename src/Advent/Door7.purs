@@ -149,24 +149,22 @@ colorName ∷ Parser String
 colorName = word <> string " " <> word
 
 contentListEntry ∷ Parser Content
-contentListEntry = do
-  count ← unsigned
-  void (char ' ')
-  color ← colorName
-  void $ (string " bags") <|> (string " bag")
-  pure { color, count }
+contentListEntry =
+  (\count color → { color, count })
+    <$> unsigned
+    <* (char ' ')
+    <*> colorName
+    <* ((string " bags") <|> (string " bag"))
 
 contentList ∷ Parser (List Content)
 contentList = contentListEntry `sepEndBy` ((string ", ") <|> (string "."))
 
 emptyContentList ∷ Parser (List Content)
-emptyContentList = do
-  void (string "no other bags.")
-  pure Nil
+emptyContentList = (string "no other bags.") *> pure Nil
 
 bag ∷ Parser Rule
-bag = do
-  color ← colorName
-  void (string " bags contain ")
-  content ← emptyContentList <|> contentList
-  pure { color, content }
+bag =
+  (\color content → { color, content })
+    <$> colorName
+    <* (string " bags contain ")
+    <*> (emptyContentList <|> contentList)
