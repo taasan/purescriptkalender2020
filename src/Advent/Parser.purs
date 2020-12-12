@@ -1,7 +1,9 @@
 module Advent.Parser where
 
-import Prelude hiding (between, when)
-import Advent.Lib (fromCharList, (∘))
+import Prelude hiding (zero)
+import Text.Parsing.Parser.Combinators (optional, sepBy)
+import Advent.Lib (fromCharList, (*>+), (∘))
+import Control.Alternative ((<|>))
 import Data.Array (foldMap)
 import Data.Array as Array
 import Data.Foldable (class Foldable)
@@ -11,7 +13,6 @@ import Data.Maybe (Maybe(..))
 import Data.String.CodeUnits as S
 import Text.Parsing.Parser (fail)
 import Text.Parsing.Parser as P
-import Text.Parsing.Parser.Combinators (sepBy)
 import Text.Parsing.Parser.String (char, oneOf, satisfy)
 
 type Parser
@@ -29,8 +30,20 @@ word = someChar (satisfy (not ∘ (_ == ' ')))
 words ∷ Parser (List String)
 words = word `sepBy` some (char ' ')
 
+zero ∷ Parser Int
+zero = char '0' *>+ 0
+
+integer ∷ Parser Int
+integer =
+  (*)
+    <$> ((char '-' *>+ -1) <|> (optional (char '+') *>+ 1))
+    <*> unsigned
+
 unsigned ∷ Parser Int
-unsigned = do
+unsigned = natural <|> zero
+
+natural ∷ Parser Int
+natural = do
   n ← oneOf digitsNotZero
   ns ← many (oneOf digits)
   case fromString $ fromCharList (n : ns) of

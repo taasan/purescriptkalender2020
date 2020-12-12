@@ -8,6 +8,7 @@ import Advent.Door4 as D4
 import Advent.Door5 as D5
 import Advent.Door6 as D6
 import Advent.Door7 as D7
+import Advent.Door8 as D8
 
 data Door
   = Door1 String
@@ -17,6 +18,7 @@ data Door
   | Door5 String
   | Door6 String
   | Door7 String
+  | Door8 String
 
 open ∷ Door → Either String String
 open (Door1 x) = D1.open x
@@ -32,3 +34,5 @@ open (Door5 x) = D5.open x
 open (Door6 x) = D6.open x
 
 open (Door7 x) = D7.open x
+
+open (Door8 x) = D8.open x
