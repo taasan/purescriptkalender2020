@@ -96,7 +96,7 @@ open str = pure $ show $ [ toNumber part1, part2 ]
   path slope = getCoordinate slope <$> 0 .. length grid
 
   collect ∷ Slope → Array Content
-  collect slope = compact $ getContent <$> path slope
+  collect = compact ∘ map getContent ∘ path
 
   getContent ∷ Coordinate → Maybe Content
   getContent { row, col } = do
@@ -104,7 +104,7 @@ open str = pure $ show $ [ toNumber part1, part2 ]
     index' rowC col
 
   parseLines ∷ String → Array Content
-  parseLines xs = parseContent <$> toCharArray xs
+  parseLines = map parseContent ∘ toCharArray
 
   parseContent ∷ Char → Content
   parseContent '#' = Tree

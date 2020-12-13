@@ -83,7 +83,7 @@ parsePassword str = do
   xs = (filter ((/=) "") ∘ unsafeSplit (Pattern """[-: ]""")) str
 
 open ∷ String → Either String String
-open input = pure ∘ show $ countValid <$> [ isValidPart1, isValidPart2 ]
+open input = (pure ∘ show ∘ map countValid) [ isValidPart1, isValidPart2 ]
   where
   countValid ∷ (PasswordEntry → Boolean) → Int
   countValid p = (length ∘ filter p) passwords

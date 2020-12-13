@@ -99,7 +99,7 @@ sumBranch m = f m - 1 -- avoid beeing counted twice
   f ∷ Branch Int → Int
   f (Branch _ Nil) = 1
 
-  f (Branch _ xs) = ((1 + _) ∘ sum) $ f' <$> xs
+  f (Branch _ xs) = ((1 + _) ∘ sum ∘ map f') xs
 
   f' b@(Branch n _) = n * (f b)
 
