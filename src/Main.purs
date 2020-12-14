@@ -53,6 +53,7 @@ doors =
   , Tuple Door6 (Right "[6775,3356]")
   , Tuple Door7 (Right "[316,11310]")
   , Tuple Door8 (Right "[1930,1688]")
+  , Tuple Door9 (Right "[18272118.0,2186361.0]")
   ]
 
 openDoor ∷ Int → Tuple (String → Door) (Either String String) → Effect (Tuple String Result)
