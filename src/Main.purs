@@ -1,19 +1,24 @@
 module Main where
 
 import Prelude
-import Advent (Door(..), open)
+import Advent.Door (Door(..), answer, open)
+import Advent.Lib (head, (<$?>))
 import Ansi.Codes (Color(..))
 import Ansi.Output (bold, foreground, underline, withGraphics)
+import Control.Monad.Error.Class (try)
 import Data.Either (Either(..), isLeft)
+import Data.Enum (fromEnum, toEnum, upFromIncluding)
 import Data.Foldable (elem)
-import Data.Traversable (traverse_)
-import Data.TraversableWithIndex (traverseWithIndex)
+import Data.Int (fromString)
+import Data.List (List)
+import Data.Maybe (Maybe(..))
+import Data.Traversable (traverse, traverse_)
 import Data.Tuple (Tuple(..), snd)
+import Data.Unfoldable1 (singleton)
 import Effect (Effect)
 import Effect.Console (log)
-import Node.Encoding (Encoding(..))
-import Node.FS.Sync (readTextFile)
-import Node.Process (exit)
+import Effect.Exception (message)
+import Node.Process (argv, exit)
 
 data Result
   = Unknown
@@ -24,7 +29,12 @@ derive instance resultEq ∷ Eq Result
 
 main ∷ Effect Unit
 main = do
-  results ← openDoors
+  args' <- argv
+  let
+    args = fromString <$?> args'
+
+    mn = head args
+  results ← go $ head args >>= toEnum
   let
     exitCode = if Wrong `elem` (snd <$> results) then 1 else 0
   traverse_ print results
@@ -40,40 +50,45 @@ main = do
 
   print (Tuple output result) = log $ ansi (color result) output
 
-openDoors ∷ Effect (Array (Tuple String Result))
-openDoors = traverseWithIndex (\i → openDoor (i + 1)) doors
+  log' s = log $ withGraphics (foreground Blue) s
 
-doors ∷ Array (Tuple (String → Door) (Either String String))
-doors =
-  [ Tuple Door1 (Right "[1020036,286977330]")
-  , Tuple Door2 (Right "[645,737]")
-  , Tuple Door3 (Right "[169.0,7560370818.0]")
-  , Tuple Door4 (Right "[213,147]")
-  , Tuple Door5 (Right "[974,646]")
-  , Tuple Door6 (Right "[6775,3356]")
-  , Tuple Door7 (Right "[316,11310]")
-  , Tuple Door8 (Right "[1930,1688]")
-  , Tuple Door9 (Right "[18272118.0,2186361.0]")
-  ]
+  go ∷ Maybe Door → Effect (List (Tuple String Result))
+  go md = do
+    case md of
+      Just door → do
+        res <- openDoor door
+        log' $ "Opening " <> show door <> "…"
+        pure $ singleton res
+      _ → do
+        log' $ "Opening all doors…"
+        openDoors
 
-openDoor ∷ Int → Tuple (String → Door) (Either String String) → Effect (Tuple String Result)
-openDoor day (Tuple door correct) = do
-  input ← getInput day
-  let
-    answer = open (door input)
+openDoors ∷ Effect (List (Tuple String Result))
+openDoors = traverse openDoor $ upFromIncluding Door1
 
-    ok =
-      if isLeft correct then
-        Unknown
-      else if answer == correct then
-        Correct
-      else
-        Wrong
-  pure $ Tuple (show day <> "\t" <> output answer) ok
+openDoor ∷ Door → Effect (Tuple String Result)
+openDoor door = open'
   where
-  output (Right x) = x
+  correct = answer door
 
-  output x = show x
+  open' ∷ Effect (Tuple String Result)
+  open' = do
+    opened <- try $ open door
+    case opened of
+      Left err -> return (message err) Unknown
+      Right answer -> do
+        let
+          ok =
+            if isLeft correct then
+              Unknown
+            else if answer == correct then
+              Correct
+            else
+              Wrong
 
-getInput ∷ Int → Effect String
-getInput day = readTextFile UTF8 $ "input/" <> show day
+          value (Right x) = x
+
+          value (Left x) = x
+        return (value answer) ok
+
+  return answer result = pure $ Tuple (show (fromEnum door) <> "\t" <> answer) result
