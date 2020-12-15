@@ -112,7 +112,7 @@ open input = (evaluation ∘ show) $ filterMap identity answer
     shouldSwap line = case program !! line of
       Just (Nop x) → x /= 0 && x /= 1
       Just (Jmp x) → x /= 1
-      _ -> false
+      _ → false
 
     go Nil = Nothing
 

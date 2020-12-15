@@ -104,7 +104,7 @@ infixl 4 inRange as ..?
 
 infixr 9 compose as ∘
 
-mapAfterMap ∷ ∀ g b a f. Functor f ⇒ Functor g ⇒ (a -> b) -> f (g a) -> f (g b)
+mapAfterMap ∷ ∀ g b a f. Functor f ⇒ Functor g ⇒ (a → b) → f (g a) → f (g b)
 mapAfterMap = map ∘ map
 
 infixl 4 mapAfterMap as <<$>>
