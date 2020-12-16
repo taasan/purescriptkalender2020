@@ -11,6 +11,7 @@ import Advent.Door6 as D6
 import Advent.Door7 as D7
 import Advent.Door8 as D8
 import Advent.Door9 as D9
+import Advent.Door12 as D12
 import Data.Either (Either(..))
 import Data.Enum (class BoundedEnum, class Enum, Cardinality(..), defaultPred, defaultSucc, fromEnum, toEnum)
 import Data.Generic.Rep (class Generic)
@@ -60,6 +61,7 @@ instance hasAnswerDoor ∷ HasAnswer Door (Either String String) where
   answer Door7 = Right "[316,11310]"
   answer Door8 = Right "[1930,1688]"
   answer Door9 = Right "[18272118.0,2186361.0]"
+  answer Door12 = Right "[904,18747]"
   answer _ = Left "Nothing yet"
 
 derive instance genericDoor ∷ Generic Door _
@@ -156,6 +158,8 @@ doOpen Door7 = pure ∘ D7.open
 doOpen Door8 = pure ∘ D8.open
 
 doOpen Door9 = pure ∘ D9.open
+
+doOpen Door12 = pure ∘ D12.open
 
 doOpen _ = \_ → (pure ∘ Left) "Nothing yet"
 
