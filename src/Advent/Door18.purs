@@ -1,19 +1,17 @@
 module Advent.Door18 (open) where
 
-import Prelude hiding (between)
-import Advent.Lib (lines, (*>+), (<$?>))
+import Prelude
+import Advent.Lib ((*>+), (<$?>), (∘))
 import Control.Alt ((<|>))
 import Control.Lazy (fix)
 import Data.Either (Either(..), hush, isLeft)
-import Data.Foldable (find, sum)
+import Data.Foldable (any, sum)
 import Data.Identity (Identity)
-import Data.List (List(..), many, (:))
-import Data.Maybe (Maybe(..))
-import Data.String (trim)
-import Text.Parsing.Parser (ParseError, Parser, fail, runParser)
-import Text.Parsing.Parser.Combinators (between, sepBy1, sepEndBy1)
+import Data.List (many)
+import Text.Parsing.Parser (Parser, fail, runParser)
+import Text.Parsing.Parser.Combinators (many1Till)
 import Text.Parsing.Parser.Expr (Assoc(..), Operator(..), OperatorTable, buildExprParser)
-import Text.Parsing.Parser.String (char, oneOf, string)
+import Text.Parsing.Parser.String (char, eof, oneOf, string)
 import Text.Parsing.Parser.Token (GenLanguageDef(..), makeTokenParser)
 
 {- https://adventofcode.com/2020/day/18
@@ -42,34 +40,26 @@ open ∷ String → Either String String
 open input = evaluation
   where
   evaluation =
-    if isLeft part1 || isLeft part2 then
-      Left $ show $ [ part1, part2 ]
+    if any isLeft solution then
+      (Left ∘ show) solution
     else
-      Right $ show $ hush <$?> [ part1, part2 ]
+      (Right ∘ show) (hush <$?> solution)
 
-  part1 = case runParser input $ operatorList `sepEndBy1` char '\n' of
-    Right xs → pure $ sum $ eval <$?> xs
-    Left err → Left err
-
-  part2 =
-    parse
-      [ [ Infix add AssocLeft ]
-      , [ Infix mul AssocLeft ]
+  solution =
+    map parse
+      [ [ [ Infix (add <|> mul) AssocLeft ] ] -- Part 1
+      , [ [ Infix add AssocLeft ], [ Infix mul AssocLeft ] ] -- Part 2
       ]
-
-  add = string "+" $> (+)
-
-  mul = string "*" $> (*)
-
-  parse table = case find isLeft parsed of
-    Just x → x
-    _ → pure $ sum $ hush <$?> parsed
     where
-    xs ∷ List String
-    xs = lines $ trim input
+    add = string "+" $> (+)
 
-    parsed ∷ List (Either ParseError Number)
-    parsed = flip runParser (expressionParser table) <$> xs
+    mul = string "*" $> (*)
+
+  parse operatorTable = case runParser input parser of
+    Right xs → (Right ∘ sum) xs
+    Left err → Left err
+    where
+    parser = expressionParser operatorTable `many1Till` eof
 
 -- Kun tallene fra 1 til 9 fins i input
 number ∷ Parser String Number
@@ -83,53 +73,6 @@ number =
     <|> (string "7" *>+ 7.0)
     <|> (string "8" *>+ 8.0)
     <|> (string "9" *>+ 9.0)
-
-{--- PART 1 ---
-
-Bruker en stakk og tar unna etter hvert.
-
--}
-data Expr
-  = Add
-  | Mul
-  | Paren (List Expr)
-  | Num Number
-
-operatorList ∷ Parser String (List Expr)
--- Lazy.fix for rekursiv parsing
-operatorList = fix \_ → operator `sepBy1` many (char ' ')
-
-operator ∷ Parser String Expr
-operator = add <|> mul <|> num <|> paren
-  where
-  add = string "+" *>+ Add
-
-  mul = string "*" *>+ Mul
-
-  num = Num <$> number
-
-  -- Lazy.fix for rekursiv parsing
-  paren = Paren <$> fix \_ → between (char '(') (char ')') operatorList
-
-eval ∷ List Expr → Maybe Number
-eval (Num x : Nil) = Just x
-
-eval (Paren xs : Nil) = eval xs
-
-eval (x : op : y : zs) = do
-  let
-    op' Add = Just (+)
-
-    op' Mul = Just (*)
-
-    op' _ = Nothing
-  f ← op' op
-  y' ← eval $ y : Nil
-  x' ← eval $ x : Nil
-  eval $ Num (x' `f` y') : zs -- Evaluer forfra
-
-eval _ = do
-  Nothing
 
 {--- Bygger parser med Text.Parsing.Parser.Expr.OperatorTable
 
