@@ -11,7 +11,7 @@ import Data.List (many)
 import Text.Parsing.Parser (Parser, fail, runParser)
 import Text.Parsing.Parser.Combinators (many1Till)
 import Text.Parsing.Parser.Expr (Assoc(..), Operator(..), OperatorTable, buildExprParser)
-import Text.Parsing.Parser.String (char, eof, oneOf, string)
+import Text.Parsing.Parser.String (char, eof, oneOf)
 import Text.Parsing.Parser.Token (GenLanguageDef(..), makeTokenParser)
 
 {- https://adventofcode.com/2020/day/18
@@ -51,9 +51,9 @@ open input = evaluation
       , [ [ Infix add AssocLeft ], [ Infix mul AssocLeft ] ] -- Part 2
       ]
     where
-    add = string "+" $> (+)
+    add = char '+' $> (+)
 
-    mul = string "*" $> (*)
+    mul = char '*' $> (*)
 
   parse operatorTable = case runParser input parser of
     Right xs → (Right ∘ sum) xs
@@ -64,15 +64,15 @@ open input = evaluation
 -- Kun tallene fra 1 til 9 fins i input
 number ∷ Parser String Number
 number =
-  (string "1" *>+ 1.0)
-    <|> (string "2" *>+ 2.0)
-    <|> (string "3" *>+ 3.0)
-    <|> (string "4" *>+ 4.0)
-    <|> (string "5" *>+ 5.0)
-    <|> (string "6" *>+ 6.0)
-    <|> (string "7" *>+ 7.0)
-    <|> (string "8" *>+ 8.0)
-    <|> (string "9" *>+ 9.0)
+  (char '1' *>+ 1.0)
+    <|> (char '2' *>+ 2.0)
+    <|> (char '3' *>+ 3.0)
+    <|> (char '4' *>+ 4.0)
+    <|> (char '5' *>+ 5.0)
+    <|> (char '6' *>+ 6.0)
+    <|> (char '7' *>+ 7.0)
+    <|> (char '8' *>+ 8.0)
+    <|> (char '9' *>+ 9.0)
 
 {--- Bygger parser med Text.Parsing.Parser.Expr.OperatorTable
 
