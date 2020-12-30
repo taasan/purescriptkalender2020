@@ -38,85 +38,54 @@ Your seat wasn't at the very front or back, though; the seats with IDs
 What is the ID of your seat?
 -}
 import Prelude
-import Advent.Lib ((∘))
-import Advent.Parser (Parser)
-import Control.Alt ((<|>))
+import Advent.Lib (lines, (∘), (<$?>))
 import Data.Either (Either(..))
-import Data.Foldable (foldl, maximum, minimum)
-import Data.List (List(..), difference, drop, length, many, take, (..), (:))
+import Data.Foldable (maximum, minimum)
+import Data.Int (fromNumber)
+import Data.List (List(..), difference, (..), (:))
 import Data.Maybe (Maybe(..))
-import Data.Unfoldable (replicateA)
-import Text.Parsing.Parser (ParseError(..), fail, parseErrorMessage, runParser)
-import Text.Parsing.Parser.Combinators (sepEndBy)
-import Text.Parsing.Parser.Pos (initialPos)
-import Text.Parsing.Parser.String (char)
+import Data.String (Pattern(..), Replacement(..), replaceAll)
+import Data.String as String
+import Global (readInt)
 
 open ∷ String → Either String String
 open input = do
   case doOpen of
-    Right x → pure x
-    Left err → Left $ parseErrorMessage err
+    Just x → pure x
+    _ → Left "No answer for you!"
   where
-  doOpen ∷ Either ParseError String
+  xs = parseLine <$?> lines input
+
+  parseLine l = case parseRow l, parseCol l of
+    Just row, Just col -> Just { row, col }
+    _, _ -> Nothing
+
+  parseRow = parse String.take "F" "B"
+
+  parseCol = parse String.drop "L" "R"
+
+  parse f off on = fromNumber ∘ readInt 2 ∘ toBinaryDigits f off on
+
+  toBinaryDigits f off on = f 7 ∘ replaceAll (Pattern off) zero ∘ replaceAll (Pattern on) one
+
+  zero = Replacement "0"
+
+  one = Replacement "1"
+
+  doOpen ∷ Maybe String
   doOpen = do
-    xs ← runParser input positions
     let
       seats = seat <$> xs
-    maxSeat ← fromMaybe "maxSeat" $ maximum seats
-    minSeat ← fromMaybe "minSeat" $ minimum seats
+    maxSeat ← maximum seats
+    minSeat ← minimum seats
     let
       availableSeats = difference (minSeat .. maxSeat) seats
     mySeat ← case availableSeats of
       (x : Nil) → pure x
-      _ → fromMaybe "Expected singleton list for mySeat" $ Nothing
+      _ → Nothing
     (pure ∘ show) [ maxSeat, mySeat ]
     where
     seat { row, col } = row * 8 + col
 
-  fromMaybe ∷ ∀ a. String → Maybe a → Either ParseError a
-  fromMaybe reason Nothing = Left $ ParseError reason $ initialPos
-
-  fromMaybe _ (Just x) = pure x
-
-data Partition
-  = First
-  | Last
-
 type Position
   = { row ∷ Int, col ∷ Int }
-
-rowPartition ∷ Parser Partition
-rowPartition =
-  (char 'F' $> First)
-    <|> (char 'B' $> Last)
-
-colPartition ∷ Parser Partition
-colPartition =
-  (char 'L' $> First)
-    <|> (char 'R' $> Last)
-
-position ∷ Parser Position
-position = do
-  row ← replicateA 7 rowPartition >>= getPos (0 .. 127)
-  col ← replicateA 3 colPartition >>= getPos (0 .. 7)
-  pure $ { col, row }
-  where
-  getPos ∷ List Int → List Partition → Parser Int
-  getPos ys ps = f $ foldl partition ys ps
-    where
-    -- We should have a singleton here
-    f (x : Nil) = pure x
-
-    f _ = fail "Expected a singleton list"
-
-  partition ∷ List Int → Partition → List Int
-  partition seats p = (f p) n seats
-    where
-    n = (length seats) / 2
-
-    f First = take
-
-    f _ = drop
-
-positions ∷ Parser (List Position)
-positions = position `sepEndBy` many (char '\n')
