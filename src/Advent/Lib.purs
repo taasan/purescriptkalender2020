@@ -7,6 +7,7 @@ import Data.Filterable (filterMap)
 import Data.Foldable (class Foldable, foldl, indexl)
 import Data.List (List(..), (:))
 import Data.List as List
+import Data.List.Lazy as LazyList
 import Data.Maybe (Maybe)
 import Data.Set (Set)
 import Data.Set as Set
@@ -16,7 +17,7 @@ import Data.String.Regex (match, split)
 import Data.String.Regex.Flags (noFlags)
 import Data.String.Regex.Unsafe (unsafeRegex)
 
-lines ∷ ∀ f. FromFoldable f String ⇒ String → f String
+lines ∷ ∀ f. FromFoldable Array String f ⇒ String → f String
 lines str = fromFoldable $ unsafeSplit (Pattern "\n") str
 
 {-
@@ -63,29 +64,33 @@ intersections ∷
   ∀ a f g.
   Ord a ⇒
   Bind f ⇒
-  FromFoldable f a ⇒
-  FromFoldable g a ⇒
+  Foldable f ⇒
+  FromFoldable f a g ⇒
+  FromFoldable Set a f ⇒
   f (f a) → g a
 intersections xs = fromFoldable $ foldl intersect (join xs) xs
 
 intersect ∷
   ∀ f1 f2 f3 a.
-  Ord a ⇒ Foldable f1 ⇒ Foldable f2 ⇒ FromFoldable f3 a ⇒ f1 a → f2 a → f3 a
+  Ord a ⇒ Foldable f1 ⇒ Foldable f2 ⇒ FromFoldable Set a f3 ⇒ f1 a → f2 a → f3 a
 intersect xs ys = fromFoldable $ Set.intersection xs' ys'
   where
-  xs' = fromFoldable xs
+  xs' = Set.fromFoldable xs
 
-  ys' = fromFoldable ys
+  ys' = Set.fromFoldable ys
 
-class
-  (Foldable f) ⇐ FromFoldable f a where
-  fromFoldable ∷ ∀ g. Foldable g ⇒ g a → f a
+class FromFoldable f a g where
+  fromFoldable ∷ Foldable f ⇒ f a → g a
 
-instance fromFoldableArray ∷ FromFoldable Array a where
+instance fromFoldableIdentity ∷ FromFoldable f a f where
+  fromFoldable = identity
+else instance fromFoldableArray ∷ FromFoldable f a Array where
   fromFoldable = Array.fromFoldable
-else instance fromFoldableList ∷ FromFoldable List a where
+else instance fromFoldableList ∷ FromFoldable f a List where
   fromFoldable = List.fromFoldable
-else instance fromFoldableSet ∷ Ord a ⇒ FromFoldable Set a where
+else instance fromFoldableLazyList ∷ FromFoldable f a LazyList.List where
+  fromFoldable = LazyList.fromFoldable
+else instance fromFoldableSet ∷ Ord a ⇒ FromFoldable f a Set where
   fromFoldable = Set.fromFoldable
 
 inRange ∷ ∀ a. Ord a ⇒ a → a → a → Boolean
