@@ -1,7 +1,7 @@
 module Advent.Door12 where
 
 import Prelude
-import Advent.Lib ((*>+), (∘))
+import Advent.Lib ((∘))
 import Advent.Parser (Parser, integer)
 import Control.Alternative ((<|>))
 import Data.Either (Either)
@@ -286,14 +286,14 @@ instruction = Instruction <$> action <*> integer
 
     turn' = Turn <$> direction
 
-    forward' = char 'F' *>+ Forward
+    forward' = char 'F' $> Forward
 
   heading ∷ Parser Heading
   heading =
-    (char 'N' *>+ North)
-      <|> (char 'E' *>+ East)
-      <|> (char 'S' *>+ South)
-      <|> (char 'W' *>+ West)
+    (char 'N' $> North)
+      <|> (char 'E' $> East)
+      <|> (char 'S' $> South)
+      <|> (char 'W' $> West)
 
   direction ∷ Parser Direction
-  direction = (char 'L' *>+ Left) <|> (char 'R' *>+ Right)
+  direction = (char 'L' $> Left) <|> (char 'R' $> Right)

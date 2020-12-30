@@ -58,12 +58,6 @@ unsafeMatch (Pattern pattern) = match re
 fromCharList ∷ List Char → String
 fromCharList = fromCharArray ∘ fromFoldable
 
--- | (*>) is the same as Haskell's (>>)
-applySecondWithPure ∷ ∀ b a m. Apply m ⇒ Applicative m ⇒ m b → a → m a
-applySecondWithPure m x = m *> pure x
-
-infixl 1 applySecondWithPure as *>+
-
 -- | Intersection of multiple foldables
 intersections ∷
   ∀ a f g.

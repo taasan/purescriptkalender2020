@@ -1,7 +1,7 @@
 module Advent.Door18 (open) where
 
 import Prelude
-import Advent.Lib ((*>+), (<$?>), (∘))
+import Advent.Lib ((<$?>), (∘))
 import Control.Alt ((<|>))
 import Control.Lazy (fix)
 import Data.Either (Either(..), hush, isLeft)
@@ -64,15 +64,15 @@ open input = evaluation
 -- Kun tallene fra 1 til 9 fins i input
 number ∷ Parser String Number
 number =
-  (char '1' *>+ 1.0)
-    <|> (char '2' *>+ 2.0)
-    <|> (char '3' *>+ 3.0)
-    <|> (char '4' *>+ 4.0)
-    <|> (char '5' *>+ 5.0)
-    <|> (char '6' *>+ 6.0)
-    <|> (char '7' *>+ 7.0)
-    <|> (char '8' *>+ 8.0)
-    <|> (char '9' *>+ 9.0)
+  (char '1' $> 1.0)
+    <|> (char '2' $> 2.0)
+    <|> (char '3' $> 3.0)
+    <|> (char '4' $> 4.0)
+    <|> (char '5' $> 5.0)
+    <|> (char '6' $> 6.0)
+    <|> (char '7' $> 7.0)
+    <|> (char '8' $> 8.0)
+    <|> (char '9' $> 9.0)
 
 {--- Bygger parser med Text.Parsing.Parser.Expr.OperatorTable
 

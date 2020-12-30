@@ -41,7 +41,7 @@ after the program terminates?
 
 -}
 import Prelude
-import Advent.Lib (fromFoldable, (!!), (*>+), (∘), (<<$>>))
+import Advent.Lib (fromFoldable, (!!), (∘), (<<$>>))
 import Advent.Parser (integer)
 import Control.Alt ((<|>))
 import Data.Array (all, updateAt)
@@ -195,12 +195,12 @@ parse input = runParser input program
   where
   program = (instruction <|> end) `sepBy1` (char '\n')
 
-  end = eof *>+ End
+  end = eof $> End
 
   instruction =
-    ( (string "acc" *>+ Acc)
-        <|> (string "jmp" *>+ Jmp)
-        <|> (string "nop" *>+ Nop)
+    ( (string "acc" $> Acc)
+        <|> (string "jmp" $> Jmp)
+        <|> (string "nop" $> Nop)
     )
       <* char ' '
       <*> integer

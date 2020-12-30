@@ -2,7 +2,7 @@ module Advent.Parser where
 
 import Prelude hiding (zero)
 import Text.Parsing.Parser.Combinators (optional, sepBy)
-import Advent.Lib (fromCharList, (*>+), (∘))
+import Advent.Lib (fromCharList, (∘))
 import Control.Alternative ((<|>))
 import Data.Array (foldMap)
 import Data.Array as Array
@@ -31,12 +31,12 @@ words ∷ Parser (List String)
 words = word `sepBy` some (char ' ')
 
 zero ∷ Parser Int
-zero = char '0' *>+ 0
+zero = char '0' $> 0
 
 integer ∷ Parser Int
 integer =
   (*)
-    <$> ((char '-' *>+ -1) <|> (optional (char '+') *>+ 1))
+    <$> ((char '-' $> -1) <|> (optional (char '+') $> 1))
     <*> unsigned
 
 unsigned ∷ Parser Int
