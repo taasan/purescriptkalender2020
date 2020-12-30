@@ -20,11 +20,10 @@ import Data.String.Regex.Unsafe (unsafeRegex)
 lines ∷ ∀ f. FromFoldable Array String f ⇒ String → f String
 lines str = fromFoldable $ unsafeSplit (Pattern "\n") str
 
-{-
-Stolen from https://hackage.haskell.org/package/combinat-0.2.9.0/docs/src/Math.Combinat.Sets.html#choose
--}
--- | All possible ways to choose @k@ elements from a list, without
--- repetitions. \"Antisymmetric power\" for lists. Synonym for 'kSublists'.
+-- | All possible ways to choose `k` elements from a list, without
+-- | repetitions. "Antisymmetric power" for lists. Synonym for `kSublists`.
+-- |
+-- | Stolen from https://hackage.haskell.org/package/combinat-0.2.9.0/docs/src/Math.Combinat.Sets.html#choose
 choose ∷ ∀ a. Int → List a → List (List a)
 choose 0 _ = Nil : Nil
 
