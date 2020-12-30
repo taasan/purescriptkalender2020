@@ -1,4 +1,22 @@
-module Advent.Lib where
+module Advent.Lib
+  ( class FromFoldable
+  , choose
+  , fromCharList
+  , fromFoldable
+  , head
+  , index
+  , inRange
+  , intersections
+  , intersect
+  , lines
+  , mapAfterMap
+  , unsafeSplit
+  , (!!)
+  , (∘)
+  , (<$?>)
+  , (<<$>>)
+  , (..?)
+  ) where
 
 import Prelude
 import Data.Array as Array
