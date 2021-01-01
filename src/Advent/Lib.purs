@@ -93,7 +93,7 @@ inRange ∷ ∀ a. Ord a ⇒ a → a → a → Boolean
 inRange a b x
   | a > b = inRange b a x
 
-inRange a b x = x >= a && x <= b
+inRange a b x = between a b x
 
 infixl 4 inRange as ..?
 
