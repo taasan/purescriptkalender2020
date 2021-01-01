@@ -286,14 +286,14 @@ instruction = Instruction <$> action <*> integer
 
     turn' = Turn <$> direction
 
-    forward' = char 'F' $> Forward
+    forward' = Forward <$ char 'F'
 
   heading ∷ Parser Heading
   heading =
-    (char 'N' $> North)
-      <|> (char 'E' $> East)
-      <|> (char 'S' $> South)
-      <|> (char 'W' $> West)
+    (North <$ char 'N')
+      <|> (East <$ char 'E')
+      <|> (South <$ char 'S')
+      <|> (West <$ char 'W')
 
   direction ∷ Parser Direction
-  direction = (char 'L' $> Left) <|> (char 'R' $> Right)
+  direction = (Left <$ char 'L') <|> (Right <$ char 'R')

@@ -198,14 +198,14 @@ fromMap m = do
 -- PARSERS
 key ∷ Parser Key
 key =
-  (string "byr" $> Byr)
-    <|> (string "iyr" $> Iyr)
-    <|> (string "eyr" $> Eyr)
-    <|> (string "hgt" $> Hgt)
-    <|> (string "hcl" $> Hcl)
-    <|> (string "ecl" $> Ecl)
-    <|> (string "pid" $> Pid)
-    <|> (optional (string "cid") $> Cid)
+  (Byr <$ string "byr")
+    <|> (Iyr <$ string "iyr")
+    <|> (Eyr <$ string "eyr")
+    <|> (Hgt <$ string "hgt")
+    <|> (Hcl <$ string "hcl")
+    <|> (Ecl <$ string "ecl")
+    <|> (Pid <$ string "pid")
+    <|> (Cid <$ optional (string "cid"))
 
 field ∷ Parser Field
 field = do
@@ -242,7 +242,7 @@ height = do
   if validHeight height' then pure height' else fail "Invalid height"
   where
   parseUnit ∷ Parser (Int → Height)
-  parseUnit = (string "in" $> In) <|> (string "cm" $> Cm)
+  parseUnit = (In <$ string "in") <|> (Cm <$ string "cm")
 
   validHeight (Cm x) = (150 ..? 193) x
 

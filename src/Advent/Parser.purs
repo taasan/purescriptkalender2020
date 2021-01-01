@@ -31,12 +31,12 @@ words ∷ Parser (List String)
 words = word `sepBy` some (char ' ')
 
 zero ∷ Parser Int
-zero = char '0' $> 0
+zero = 0 <$ char '0'
 
 integer ∷ Parser Int
 integer =
   (*)
-    <$> ((char '-' $> -1) <|> (optional (char '+') $> 1))
+    <$> ((-1) <$ char '-' <|> 1 <$ optional (char '+'))
     <*> unsigned
 
 unsigned ∷ Parser Int

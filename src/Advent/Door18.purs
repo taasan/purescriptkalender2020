@@ -51,9 +51,9 @@ open input = evaluation
       , [ [ Infix add AssocLeft ], [ Infix mul AssocLeft ] ] -- Part 2
       ]
     where
-    add = char '+' $> (+)
+    add = (+) <$ char '+'
 
-    mul = char '*' $> (*)
+    mul = (*) <$ char '*'
 
   parse operatorTable = case runParser input parser of
     Right xs → (Right ∘ sum) xs
@@ -64,15 +64,15 @@ open input = evaluation
 -- Kun tallene fra 1 til 9 fins i input
 number ∷ Parser String Number
 number =
-  (char '1' $> 1.0)
-    <|> (char '2' $> 2.0)
-    <|> (char '3' $> 3.0)
-    <|> (char '4' $> 4.0)
-    <|> (char '5' $> 5.0)
-    <|> (char '6' $> 6.0)
-    <|> (char '7' $> 7.0)
-    <|> (char '8' $> 8.0)
-    <|> (char '9' $> 9.0)
+  (1.0 <$ char '1')
+    <|> (2.0 <$ char '2')
+    <|> (3.0 <$ char '3')
+    <|> (4.0 <$ char '4')
+    <|> (5.0 <$ char '5')
+    <|> (6.0 <$ char '6')
+    <|> (7.0 <$ char '7')
+    <|> (8.0 <$ char '8')
+    <|> (9.0 <$ char '9')
 
 {--- Bygger parser med Text.Parsing.Parser.Expr.OperatorTable
 

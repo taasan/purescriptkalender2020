@@ -195,12 +195,12 @@ parse input = runParser input program
   where
   program = (instruction <|> end) `sepBy1` (char '\n')
 
-  end = eof $> End
+  end = End <$ eof
 
   instruction =
-    ( (string "acc" $> Acc)
-        <|> (string "jmp" $> Jmp)
-        <|> (string "nop" $> Nop)
+    ( (Acc <$ string "acc")
+        <|> (Jmp <$ string "jmp")
+        <|> (Nop <$ string "nop")
     )
       <* char ' '
       <*> integer
