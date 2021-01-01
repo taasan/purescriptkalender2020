@@ -1,6 +1,5 @@
 module Advent.Lib
   ( class FromFoldable
-  , choose
   , fromCharList
   , fromFoldable
   , head
@@ -22,7 +21,7 @@ import Prelude
 import Data.Array as Array
 import Data.Filterable (filterMap)
 import Data.Foldable (class Foldable, foldl, indexl)
-import Data.List (List(..), (:))
+import Data.List (List)
 import Data.List as List
 import Data.List.Lazy as LazyList
 import Data.Maybe (Maybe)
@@ -36,20 +35,6 @@ import Data.String.Regex.Unsafe (unsafeRegex)
 
 lines ∷ ∀ f. FromFoldable Array String f ⇒ String → f String
 lines str = fromFoldable $ unsafeSplit (Pattern "\n") str
-
--- | All possible ways to choose `k` elements from a list, without
--- | repetitions. "Antisymmetric power" for lists. Synonym for `kSublists`.
--- |
--- | Stolen from https://hackage.haskell.org/package/combinat-0.2.9.0/docs/src/Math.Combinat.Sets.html#choose
-choose ∷ ∀ a. Int → List a → List (List a)
-choose 0 _ = Nil : Nil
-
-choose _ Nil = Nil
-
-choose k _
-  | k < 1 = Nil
-
-choose k (x : xs) = map ((:) x) (choose (k - 1) xs) <> choose k xs
 
 head ∷ ∀ a f. Foldable f ⇒ f a → Maybe a
 head = indexl 0

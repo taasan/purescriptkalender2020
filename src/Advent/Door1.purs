@@ -1,10 +1,11 @@
 module Advent.Door1 (open) where
 
 import Prelude
-import Advent.Lib ((<$?>), (∘), choose, lines)
+import Advent.Lib ((<$?>), (∘), lines)
 import Data.Either (Either)
 import Data.Foldable (find, product, sum)
 import Data.Int (fromString)
+import Data.List (List(..), (:))
 
 {- https://adventofcode.com/2020/day/1
 
@@ -51,3 +52,17 @@ open input = pure $ show $ calculate <$?> [ 2, 3 ]
     pure $ product ys
 
   xs = fromString <$?> lines input
+
+-- | All possible ways to choose `k` elements from a list, without
+-- | repetitions. "Antisymmetric power" for lists. Synonym for `kSublists`.
+-- |
+-- | Stolen from https://hackage.haskell.org/package/combinat-0.2.9.0/docs/src/Math.Combinat.Sets.html#choose
+choose ∷ ∀ a. Int → List a → List (List a)
+choose 0 _ = Nil : Nil
+
+choose _ Nil = Nil
+
+choose k _
+  | k < 1 = Nil
+
+choose k (x : xs) = map ((:) x) (choose (k - 1) xs) <> choose k xs
