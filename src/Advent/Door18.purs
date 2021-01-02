@@ -55,9 +55,7 @@ open input = evaluation
 
     mul = (*) <$ char '*'
 
-  parse operatorTable = case runParser input parser of
-    Right xs → (Right ∘ sum) xs
-    Left err → Left err
+  parse operatorTable = sum <$> runParser input parser
     where
     parser = expressionParser operatorTable `many1Till` eof
 
