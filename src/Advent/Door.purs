@@ -1,7 +1,6 @@
 module Advent.Door where
 
-import Advent.Lib ((∘))
-import Prelude (class Bounded, class Eq, class Ord, class Show, bind, pure, show, ($), (<>))
+import Prelude (class Bounded, class Eq, class Ord, class Show, pure)
 import Advent.Door1 as D1
 import Advent.Door2 as D2
 import Advent.Door3 as D3
@@ -19,9 +18,6 @@ import Data.Enum (class BoundedEnum, class Enum, Cardinality(..), defaultPred, d
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Maybe (Maybe(..))
-import Effect (Effect)
-import Node.Encoding (Encoding(..))
-import Node.FS.Sync (readTextFile)
 
 data Door
   = Door1
@@ -139,37 +135,29 @@ instance boundedEnumDoor ∷ BoundedEnum Door where
   fromEnum Door24 = 24
   fromEnum Door25 = 25
 
-open ∷ Door → Effect (Either String String)
-open door = do
-  input <- getInput door
-  doOpen door input
+open ∷ Door → String → Either String String
+open Door1 = D1.open
 
-doOpen ∷ Door → String → Effect (Either String String)
-doOpen Door1 = pure ∘ D1.open
+open Door2 = D2.open
 
-doOpen Door2 = pure ∘ D2.open
+open Door3 = D3.open
 
-doOpen Door3 = pure ∘ D3.open
+open Door4 = D4.open
 
-doOpen Door4 = pure ∘ D4.open
+open Door5 = D5.open
 
-doOpen Door5 = pure ∘ D5.open
+open Door6 = D6.open
 
-doOpen Door6 = pure ∘ D6.open
+open Door7 = D7.open
 
-doOpen Door7 = pure ∘ D7.open
+open Door8 = D8.open
 
-doOpen Door8 = pure ∘ D8.open
+open Door9 = D9.open
 
-doOpen Door9 = pure ∘ D9.open
+open Door12 = D12.open
 
-doOpen Door12 = pure ∘ D12.open
+open Door18 = D18.open
 
-doOpen Door18 = pure ∘ D18.open
+open Door25 = D25.open
 
-doOpen Door25 = pure ∘ D25.open
-
-doOpen _ = \_ → (pure ∘ Left) "Nothing yet"
-
-getInput ∷ Door → Effect String
-getInput n = readTextFile UTF8 $ "input/" <> (show ∘ fromEnum) n
+open _ = \_ → Left "Nothing yet"

@@ -2,7 +2,7 @@ module Main where
 
 import Prelude
 import Advent.Door (Door(..), answer, open)
-import Advent.Lib (head, (<$?>))
+import Advent.Lib (head, (<$?>), (∘))
 import Ansi.Codes (Color(..))
 import Ansi.Output (bold, foreground, underline, withGraphics)
 import Control.Monad.Error.Class (try)
@@ -17,7 +17,9 @@ import Data.Tuple (Tuple(..), snd)
 import Data.Unfoldable1 (singleton)
 import Effect (Effect)
 import Effect.Console (log)
-import Effect.Exception (message)
+import Effect.Exception (Error)
+import Node.Encoding (Encoding(..))
+import Node.FS.Sync (readTextFile)
 import Node.Process (argv, exit)
 
 data Result
@@ -72,12 +74,12 @@ openDoor door = open'
   correct = answer door
 
   open' ∷ Effect (Tuple String Result)
-  open' = do
-    opened <- try $ open door
-    case opened of
-      Left err -> return (message err) Unknown
-      Right answer -> do
+  open' =
+    bind (getInput door) case _ of
+      Right input → do
         let
+          answer = open door input
+
           ok =
             if isLeft correct then
               Unknown
@@ -90,5 +92,9 @@ openDoor door = open'
 
           value (Left x) = x
         return (value answer) ok
+      Left err → return (show err) Unknown
 
   return answer result = pure $ Tuple (show (fromEnum door) <> "\t" <> answer) result
+
+getInput ∷ Door → Effect (Either Error String)
+getInput n = try $ readTextFile UTF8 $ "input/" <> (show ∘ fromEnum) n
