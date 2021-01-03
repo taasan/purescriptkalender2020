@@ -2,20 +2,19 @@ module Main where
 
 import Prelude
 import Advent.Door (Door(..), answer, open)
-import Advent.Lib (head, (<$?>), (∘))
+import Advent.Lib (fromFoldable, (<$?>), (∘))
 import Ansi.Codes (Color(..))
 import Ansi.Output (bold, foreground, underline, withGraphics)
 import Control.Monad.Error.Class (try)
 import Data.Bifoldable (bifold)
 import Data.Either (Either(..), isLeft)
 import Data.Enum (fromEnum, toEnum, upFromIncluding)
-import Data.Foldable (elem)
+import Data.Filterable (filter)
+import Data.Foldable (any)
 import Data.Int (fromString)
 import Data.List (List)
-import Data.Maybe (Maybe(..))
-import Data.Traversable (traverse, traverse_)
+import Data.Traversable (sequence, traverse, traverse_)
 import Data.Tuple (Tuple(..), snd)
-import Data.Unfoldable1 (singleton)
 import Effect (Effect)
 import Effect.Console (log)
 import Effect.Exception (Error)
@@ -32,14 +31,12 @@ derive instance resultEq ∷ Eq Result
 
 main ∷ Effect Unit
 main = do
-  args' <- argv
+  args' ← argv
+  results ← case (=<<) toEnum ∘ fromString <$?> args' of
+    [] → log' "Opening all doors…" *> removeUnknown openDoors
+    doors → sequence $ openDoor <$> fromFoldable doors
   let
-    args = fromString <$?> args'
-
-    mn = head args
-  results ← go $ head args >>= toEnum
-  let
-    exitCode = if Wrong `elem` (snd <$> results) then 1 else 0
+    exitCode = if any (p Wrong) results then 1 else 0
   traverse_ print results
   exit exitCode
   where
@@ -48,23 +45,16 @@ main = do
     Correct → BrightGreen
     Wrong → BrightRed
 
+  removeUnknown xs = xs >>= pure ∘ filter (not ∘ p Unknown)
+
+  p x = ((x == _) ∘ snd)
+
   ansi ∷ Color → String → String
   ansi x = withGraphics (bold <> underline <> foreground x)
 
   print (Tuple output result) = log $ ansi (color result) output
 
   log' s = log $ withGraphics (foreground Blue) s
-
-  go ∷ Maybe Door → Effect (List (Tuple String Result))
-  go md = do
-    case md of
-      Just door → do
-        res <- openDoor door
-        log' $ "Opening " <> show door <> "…"
-        pure $ singleton res
-      _ → do
-        log' $ "Opening all doors…"
-        openDoors
 
 openDoors ∷ Effect (List (Tuple String Result))
 openDoors = traverse openDoor $ upFromIncluding Door1
