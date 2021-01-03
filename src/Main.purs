@@ -2,25 +2,27 @@ module Main where
 
 import Prelude
 import Advent.Door (Door(..), answer, open)
-import Advent.Lib (fromFoldable, (<$?>), (∘))
+import Advent.Lib ((<$?>), (∘))
 import Ansi.Codes (Color(..))
-import Ansi.Output (bold, foreground, underline, withGraphics)
+import Ansi.Output (bold, foreground, italic, underline, withGraphics)
 import Control.Monad.Error.Class (try)
 import Data.Bifoldable (bifold)
-import Data.Either (Either(..), isLeft)
+import Data.DateTime.Instant (unInstant)
+import Data.Either (Either(..), hush, isLeft, isRight)
 import Data.Enum (fromEnum, toEnum, upFromIncluding)
 import Data.Filterable (filter)
 import Data.Foldable (any)
 import Data.Int (fromString)
-import Data.List (List)
-import Data.Traversable (sequence, traverse, traverse_)
-import Data.Tuple (Tuple(..), snd)
+import Data.Maybe (Maybe(..))
+import Data.Newtype (unwrap)
+import Data.Traversable (traverse)
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
-import Effect.Console (log)
-import Effect.Exception (Error)
+import Effect.Now (now)
 import Node.Encoding (Encoding(..))
-import Node.FS.Sync (readTextFile)
-import Node.Process (argv, exit)
+import Node.FS.Sync (exists, readTextFile)
+import Node.Process (argv, exit, stdout)
+import Node.Stream (writeString)
 
 data Result
   = Unknown
@@ -32,32 +34,40 @@ derive instance resultEq ∷ Eq Result
 main ∷ Effect Unit
 main = do
   args' ← argv
-  results ← case (=<<) toEnum ∘ fromString <$?> args' of
-    [] → log' "Opening all doors…" *> removeUnknown openDoors
-    doors → sequence $ openDoor <$> fromFoldable doors
   let
-    exitCode = if any (p Wrong) results then 1 else 0
-  traverse_ print results
-  exit exitCode
+    xs ∷ Array Door
+    xs = case (=<<) toEnum ∘ fromString <$?> args' of
+      [] → filter (isRight ∘ answer) $ upFromIncluding Door1
+      xs' → xs'
+  results ← traverse (printAndCollect ∘ openDoor) xs
+  exit if any (_ == Wrong) results then 1 else 0
   where
   color result = case result of
     Unknown → BrightYellow
     Correct → BrightGreen
     Wrong → BrightRed
 
-  removeUnknown xs = xs >>= pure ∘ filter (not ∘ p Unknown)
+  printAndCollect ∷ Effect (Tuple String Result) → Effect Result
+  printAndCollect x = do
+    start ← now
+    (Tuple output result) ← x
+    end ← now
+    let
+      duration = (unwrap ∘ unInstant) end - (unwrap ∘ unInstant) start
+    log
+      $ ansi (color result) output
+      <> withGraphics (foreground Magenta <> italic)
+          (" (" <> show duration <> " ms)")
+    pure result
 
-  p x = ((x == _) ∘ snd)
+ansi ∷ Color → String → String
+ansi x = withGraphics (bold <> underline <> foreground x)
 
-  ansi ∷ Color → String → String
-  ansi x = withGraphics (bold <> underline <> foreground x)
+log' ∷ String → Effect Unit
+log' s = log $ withGraphics (foreground Blue) s
 
-  print (Tuple output result) = log $ ansi (color result) output
-
-  log' s = log $ withGraphics (foreground Blue) s
-
-openDoors ∷ Effect (List (Tuple String Result))
-openDoors = traverse openDoor $ upFromIncluding Door1
+log ∷ String → Effect Unit
+log s = (void ∘ writeString stdout UTF8 (s <> "\n")) (pure unit)
 
 openDoor ∷ Door → Effect (Tuple String Result)
 openDoor door = open'
@@ -67,21 +77,31 @@ openDoor door = open'
   open' ∷ Effect (Tuple String Result)
   open' =
     bind (getInput door) case _ of
-      Right input → do
-        let
-          answer = open door input
+      Just input → return (bifold answer) ok
+        where
+        answer = open door input
 
-          ok =
-            if isLeft correct then
-              Unknown
-            else if answer == correct then
-              Correct
-            else
-              Wrong
-        return (bifold answer) ok
-      Left err → return (show err) Unknown
+        ok =
+          if isLeft correct then
+            Unknown
+          else if answer == correct then
+            Correct
+          else
+            Wrong
+      Nothing → return ("No input found for " <> show door) Unknown
 
   return answer result = pure $ Tuple (show (fromEnum door) <> "\t" <> answer) result
 
-getInput ∷ Door → Effect (Either Error String)
-getInput n = try $ readTextFile UTF8 $ "input/" <> (show ∘ fromEnum) n
+getInput ∷ Door → Effect (Maybe String)
+getInput n = do
+  let
+    filename = "input/" <> (show ∘ fromEnum) n
+  e ← exists filename
+  if e then do
+    res ← try (readTextFile UTF8 $ filename)
+    void case res of
+      Left err → log $ withGraphics (foreground Red) $ show err
+      x → pure unit
+    (pure ∘ hush) res
+  else
+    pure Nothing
