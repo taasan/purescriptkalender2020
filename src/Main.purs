@@ -6,6 +6,7 @@ import Advent.Lib (head, (<$?>), (∘))
 import Ansi.Codes (Color(..))
 import Ansi.Output (bold, foreground, underline, withGraphics)
 import Control.Monad.Error.Class (try)
+import Data.Bifoldable (bifold)
 import Data.Either (Either(..), isLeft)
 import Data.Enum (fromEnum, toEnum, upFromIncluding)
 import Data.Foldable (elem)
@@ -87,11 +88,7 @@ openDoor door = open'
               Correct
             else
               Wrong
-
-          value (Right x) = x
-
-          value (Left x) = x
-        return (value answer) ok
+        return (bifold answer) ok
       Left err → return (show err) Unknown
 
   return answer result = pure $ Tuple (show (fromEnum door) <> "\t" <> answer) result
