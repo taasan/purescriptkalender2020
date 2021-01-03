@@ -46,23 +46,32 @@ data Door
   | Door24
   | Door25
 
-class HasAnswer a b where
-  answer ∷ a → b
+answer ∷ Door → (Either String String)
+answer Door1 = Right "[1020036,286977330]"
 
-instance hasAnswerDoor ∷ HasAnswer Door (Either String String) where
-  answer Door1 = Right "[1020036,286977330]"
-  answer Door2 = Right "[645,737]"
-  answer Door3 = Right "[169.0,7560370818.0]"
-  answer Door4 = Right "[213,147]"
-  answer Door5 = Right "[974,646]"
-  answer Door6 = Right "[6775,3356]"
-  answer Door7 = Right "[316,11310]"
-  answer Door8 = Right "[1930,1688]"
-  answer Door9 = Right "[18272118.0,2186361.0]"
-  answer Door12 = Right "[904,18747]"
-  answer Door18 = Right "[12956356593940.0,94240043727614.0]"
-  answer Door25 = Right "11576351.0"
-  answer _ = Left "Nothing yet"
+answer Door2 = Right "[645,737]"
+
+answer Door3 = Right "[169.0,7560370818.0]"
+
+answer Door4 = Right "[213,147]"
+
+answer Door5 = Right "[974,646]"
+
+answer Door6 = Right "[6775,3356]"
+
+answer Door7 = Right "[316,11310]"
+
+answer Door8 = Right "[1930,1688]"
+
+answer Door9 = Right "[18272118.0,2186361.0]"
+
+answer Door12 = Right "[904,18747]"
+
+answer Door18 = Right "[12956356593940.0,94240043727614.0]"
+
+answer Door25 = Right "11576351.0"
+
+answer _ = Left "Nothing yet"
 
 derive instance genericDoor ∷ Generic Door _
 
