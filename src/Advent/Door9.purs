@@ -7,9 +7,9 @@ import Data.Filterable (filter)
 import Data.Foldable (all, maximum, minimum, notElem, sum)
 import Data.List (List(..), take, (:))
 import Data.Maybe (Maybe(..), isJust)
+import Data.Number (fromString)
 import Data.String (trim)
 import Data.Tuple (Tuple(..), uncurry)
-import Global (readFloat)
 
 {- https://adventofcode.com/2020/day/9
 
@@ -62,7 +62,7 @@ open input = (evaluation ∘ show) $ identity <$?> answer
 
   evaluation = if all isJust answer then Right else Left
 
-  numbers = readFloat <$> (lines ∘ trim) input
+  numbers = fromString <$?> (lines ∘ trim) input
 
   part1 = go numbers
     where

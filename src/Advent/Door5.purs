@@ -41,12 +41,11 @@ import Prelude
 import Advent.Lib (lines, (∘), (<$?>))
 import Data.Either (Either(..))
 import Data.Foldable (maximum, minimum)
-import Data.Int (fromNumber)
+import Data.Int (binary, fromStringAs)
 import Data.List (List(..), difference, (..), (:))
 import Data.Maybe (Maybe(..))
 import Data.String (Pattern(..), Replacement(..), replaceAll)
 import Data.String as String
-import Global (readInt)
 
 open ∷ String → Either String String
 open input = do
@@ -64,7 +63,7 @@ open input = do
 
   parseCol = parse String.drop "L" "R"
 
-  parse f off on = fromNumber ∘ readInt 2 ∘ toBinaryDigits f off on
+  parse f off on = fromStringAs binary ∘ toBinaryDigits f off on
 
   toBinaryDigits f off on = f 7 ∘ replaceAll (Pattern off) zero ∘ replaceAll (Pattern on) one
 

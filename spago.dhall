@@ -14,6 +14,7 @@ You can edit this file as you like.
   , "lists"
   , "node-fs"
   , "node-process"
+  , "numbers"
   , "parsing"
   , "psci-support"
   , "strings"
