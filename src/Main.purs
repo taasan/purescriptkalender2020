@@ -98,7 +98,7 @@ getInput n = do
     filename = "input/" <> (show ∘ fromEnum) n
   e ← exists filename
   if e then do
-    res ← try (readTextFile UTF8 $ filename)
+    res ← try $ readTextFile UTF8 filename
     void case res of
       Left err → log $ withGraphics (foreground Red) $ show err
       x → pure unit
