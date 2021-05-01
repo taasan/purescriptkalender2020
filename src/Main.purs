@@ -101,7 +101,7 @@ getInput n = do
     res ← try $ readTextFile UTF8 filename
     void case res of
       Left err → log $ withGraphics (foreground Red) $ show err
-      x → pure unit
+      _ → pure unit
     (pure ∘ hush) res
   else
     pure Nothing

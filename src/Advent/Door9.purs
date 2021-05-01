@@ -96,7 +96,7 @@ open input = (evaluation ∘ show) $ identity <$?> answer
 
     consecutives 0 _ = Nil
 
-    consecutives n (x : xs) = take n xs : consecutives (n - 1) xs
+    consecutives n (_ : xs) = take n xs : consecutives (n - 1) xs
 
     search _ _ Nil = Nothing
 

@@ -168,7 +168,7 @@ step current@{ acc, instructions, programState: Running line } = case instructio
   Just instruction → case instruction of
     Nop _ → jump 1
     Jmp x → jump x
-    Acc x → accumulate instruction
+    Acc _ → accumulate instruction
     End → updateState' $ Terminated line Ok
   where
   updateState' = updateState current
