@@ -1,6 +1,6 @@
 {
     "name": "purescriptkalender2020",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "",
     "main": "index.js",
     "bin": {
@@ -19,8 +19,8 @@
     "author": "",
     "license": "ISC",
     "devDependencies": {
-        "purescript": "^0.13.8",
-        "purty": "^6.3.0",
-        "spago": "^0.18.1"
+        "purescript": "^0.14.1",
+        "purty": "^7.0.0",
+        "spago": "^0.20.1"
     }
 }

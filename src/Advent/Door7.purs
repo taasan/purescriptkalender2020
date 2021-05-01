@@ -46,9 +46,10 @@ import Data.Map as Map
 import Data.Maybe (Maybe(..))
 import Data.Set (Set)
 import Data.Set as Set
+import Data.String (trim)
 import Data.Tuple (Tuple(..), fst)
-import Text.Parsing.Parser (parseErrorMessage, runParser)
-import Text.Parsing.Parser.Combinators (sepEndBy)
+import Text.Parsing.Parser (ParseError, runParser)
+import Text.Parsing.Parser.Combinators (sepBy, sepEndBy)
 import Text.Parsing.Parser.String (char, string)
 
 type Color
@@ -79,7 +80,7 @@ mapValue ∷ ∀ a. (a → a) → Branch a → Branch a
 mapValue f (Branch x xs) = Branch (f x) xs
 
 open ∷ String → Either String String
-open input = case bags input of
+open input = case bags $ trim input of
   Left err → Left $ show err
   Right bs → case lookup target rules of
     Nothing → Left $ show [ part1 ]
@@ -103,9 +104,9 @@ sumBranch m = f m - 1 -- avoid beeing counted twice
 
   f' b@(Branch n _) = n * (f b)
 
-bags ∷ String → Either String (Map Color Rule)
+bags ∷ String → Either ParseError (Map Color Rule)
 bags input = case parse of
-  Left err → (Left ∘ parseErrorMessage) err
+  Left err → Left err
   Right m → (pure ∘ Map.fromFoldable) $ (\b@{ color } → Tuple color b) <$> m
   where
   parse = runParser input (bag `sepEndBy` char '\n')
@@ -157,7 +158,7 @@ contentListEntry =
     <* ((string " bags") <|> (string " bag"))
 
 contentList ∷ Parser (List Content)
-contentList = contentListEntry `sepEndBy` ((string ", ") <|> (string "."))
+contentList = (contentListEntry `sepBy` (string ", ")) <* (string ".")
 
 emptyContentList ∷ Parser (List Content)
 emptyContentList = (string "no other bags.") *> pure Nil

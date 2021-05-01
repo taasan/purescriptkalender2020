@@ -17,10 +17,12 @@ import Data.Enum
   )
 import Data.Function (applyN)
 import Data.Int (round, toNumber)
-import Data.List (List, foldl)
+import Data.List (foldl)
+import Data.List.Types (NonEmptyList)
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Newtype (class Newtype, unwrap, wrap)
 import Data.Ord (abs)
+import Data.String (trim)
 import Math (cos, pi, sin)
 import Partial.Unsafe (unsafePartial)
 import Text.Parsing.Parser (runParser)
@@ -88,11 +90,11 @@ position?
 
 -}
 open ∷ String → Either String String
-open input = case runParser input $ instruction `sepEndBy1` char '\n' of
+open input = case (runParser ∘ trim) input $ instruction `sepEndBy1` char '\n' of
   Either.Right xs → (pure ∘ show) [ go xs (newNavigable ∷ Ship), go xs (newNavigable ∷ WaypointShip Ship) ]
   Either.Left err → (Either.Left ∘ show) err
   where
-  go ∷ ∀ a. Navigable a ⇒ List Instruction → a → Int
+  go ∷ ∀ a. Navigable a ⇒ NonEmptyList Instruction → a → Int
   go instructions f = manhattanDistance $ foldl (flip navigate) f instructions
 
   manhattanDistance ∷ ∀ a. Navigable a ⇒ a → Int

@@ -4,7 +4,6 @@ import Prelude hiding (zero)
 import Text.Parsing.Parser.Combinators (optional, sepBy)
 import Advent.Lib (fromCharList, (∘))
 import Control.Alternative ((<|>))
-import Data.Array (foldMap)
 import Data.Array as Array
 import Data.Foldable (class Foldable)
 import Data.Int (fromString)
@@ -19,7 +18,7 @@ type Parser
   = P.Parser String
 
 fromChars ∷ ∀ f. Foldable f ⇒ f Char → String
-fromChars = foldMap S.singleton
+fromChars = S.fromCharArray ∘ Array.fromFoldable
 
 someChar ∷ Parser Char → Parser String
 someChar p = fromChars <$> some p

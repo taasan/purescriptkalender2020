@@ -49,6 +49,7 @@ import Data.Either (Either(..))
 import Data.Filterable (filter, filterMap)
 import Data.Foldable (length)
 import Data.List (List(..), (..), (:))
+import Data.List.Types (NonEmptyList)
 import Data.Maybe (Maybe(..), fromMaybe, isJust)
 import Data.Monoid.Additive (Additive)
 import Data.Newtype (unwrap, wrap)
@@ -190,7 +191,7 @@ mkProgram acc =
   , programState: Running 0
   }
 
-parse ∷ String → Either ParseError (List Instruction)
+parse ∷ String → Either ParseError (NonEmptyList Instruction)
 parse input = runParser input program
   where
   program = (instruction <|> end) `sepBy1` (char '\n')
